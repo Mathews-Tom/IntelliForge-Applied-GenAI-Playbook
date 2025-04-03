@@ -1,0 +1,17 @@
+# Ignore macOS files (OS files, editor files etc.)
+.DS_Store
+*.bak
+
+# Python virtual environment & Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.venv/
+*~
+.env
+venv/
+env/
+*.log
