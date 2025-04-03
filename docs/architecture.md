@@ -74,8 +74,13 @@ Each application follows a similar structure while implementing domain-specific 
 - **Mermaid Flowchart (Online Query Flow):**
 
     ```mermaid
+    %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
     graph LR
-        subgraph Offline Prep
+        %% Title at the top
+        classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+        title["ContextQuest: Hybrid Retrieval Architecture"]:::titleClass;
+
+        subgraph Offline Preparation
             direction TB
             Prep1[Documents] --> Prep2{Text Processing/Chunking};
             Prep2 --> Prep3["Embedding Model <br> (e.g., text-embedding-004)"];
@@ -100,6 +105,9 @@ Each application follows a similar structure while implementing domain-specific 
        %% Link offline stores to online retrieval components
        Prep4 --- D;
        Prep5 --- E;
+
+       %% Position title at the top
+       
     ```
 
 ### FiscalAgent: Financial Insights
@@ -112,7 +120,12 @@ Each application follows a similar structure while implementing domain-specific 
 - **Mermaid Flowchart:**
 
     ```mermaid
+    %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
     graph LR
+        %% Title at the top
+        classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+        title["FiscalAgent: Financial Insights Architecture"]:::titleClass;
+
         A[User] --> B(Streamlit UI <br> w/ Tabs);
         B -- NL Query --> C{"FiscalAgent Backend <br> (Multi-Agent System)"};
         C -- Orchestration Logic --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
@@ -123,6 +136,9 @@ Each application follows a similar structure while implementing domain-specific 
         F -- Financial Data --> C;
         C -- Store/Retrieve History --> G[(SQLite DB <br> Conversation History)];
         C -- Synthesized Answer --> B;
+
+        %% Position title at the top
+        title ~~~ A;
     ```
 
 ### GraphQuery: Knowledge Navigator
@@ -135,7 +151,12 @@ Each application follows a similar structure while implementing domain-specific 
 - **Mermaid Flowchart (Online Query Flow):**
 
     ```mermaid
+    %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
     graph TD
+       %% Title at the top
+       classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+       title["GraphQuery: Knowledge Navigator Architecture"]:::titleClass;
+
        subgraph Graph Building Phase
            direction LR
            Prep1[PDF Document] --> Prep2[PyPDF2 Text Extraction];
@@ -164,6 +185,9 @@ Each application follows a similar structure while implementing domain-specific 
        Prep6 --- E;
        %% Visualization might also query the graph directly
        Prep6 ---- F;
+
+       %% Position title at the top
+       title ~~~ Graph_Building_Phase[Graph Building Phase];
     ```
 
 ### InsightAgent: Data Analysis
@@ -176,7 +200,12 @@ Each application follows a similar structure while implementing domain-specific 
 - **Mermaid Flowchart:**
 
     ```mermaid
+    %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
     graph LR
+        %% Title at the top
+        classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+        title["InsightAgent: Data Analysis Architecture"]:::titleClass;
+
         A[User] --> B(Streamlit UI);
         B -- Upload Data (CSV/Excel) & NL Query --> C{InsightAgent Backend};
         C -- NL Query --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
@@ -186,6 +215,9 @@ Each application follows a similar structure while implementing domain-specific 
         C -- Generate Visuals --> F[Plotly];
         F -- Visualization Data --> C;
         C -- Results & Visuals --> B;
+
+        %% Position title at the top
+        title ~~~ A;
     ```
 
 ## Design Principles
