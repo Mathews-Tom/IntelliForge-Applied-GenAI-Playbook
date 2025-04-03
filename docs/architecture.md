@@ -64,52 +64,7 @@ All applications use this shared module to interact with the Gemini API, ensurin
 
 Each application follows a similar structure while implementing domain-specific functionality:
 
-### 1. InsightAgent: Data Analysis
-
-- **Data Processing**: Functions to handle CSV and Excel file uploads
-- **Query Processing**: Natural language to SQL conversion using Gemini
-- **UI Components**: Streamlit interface with data visualization
-
-- **Description:** The user interacts via a Streamlit UI, uploading data (CSV/Excel) and entering natural language queries. The backend uses Gemini 2.5 Pro to interpret the query, potentially converting it to SQL or generating data analysis steps. Pandas is used to process the data according to the generated plan. Results and visualizations (using Plotly) are displayed back in the Streamlit UI.
-- **Mermaid Flowchart:**
-
-    ```mermaid
-    graph LR
-        A[User] --> B(Streamlit UI);
-        B -- Upload Data (CSV/Excel) & NL Query --> C{InsightAgent Backend};
-        C -- NL Query --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
-        D -- Analysis Plan / SQL Query --> C;
-        C -- Process Data --> E[Pandas Engine];
-        E -- Processed Data --> C;
-        C -- Generate Visuals --> F[Plotly];
-        F -- Visualization Data --> C;
-        C -- Results & Visuals --> B;
-    ```
-
-### 2. FiscalAgent: Financial Insights
-
-- **Data Sources**: Integration with financial APIs (yfinance)
-- **Multi-agent System**: Web search and financial data agents
-- **Conversation Storage**: SQLite database for conversation history
-- **UI Components**: Tabbed interface for different functionalities
-- **Description:** The user interacts via a Streamlit UI (possibly tabbed). Queries are handled by a multi-agent backend. An orchestrator (likely leveraging Gemini logic) routes tasks to specialized agents: a Web Search agent and a Financial Data agent (using yfinance). Gemini 2.5 Pro synthesizes information from these agents and conversation history (stored in SQLite) to provide comprehensive answers, which are displayed in the UI.
-- **Mermaid Flowchart:**
-
-    ```mermaid
-    graph LR
-        A[User] --> B(Streamlit UI <br> w/ Tabs);
-        B -- NL Query --> C{"FiscalAgent Backend <br> (Multi-Agent System)"};
-        C -- Orchestration Logic --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
-        D -- Agent Tasking --> C;
-        C -- Web Search Task --> E[Web Search Agent];
-        E -- Web Results --> C;
-        C -- Financial Data Task --> F["Financial Data Agent <br> (uses yfinance)"];
-        F -- Financial Data --> C;
-        C -- Store/Retrieve History --> G[(SQLite DB <br> Conversation History)];
-        C -- Synthesized Answer --> B;
-    ```
-
-### 3. ContextQuest: Hybrid Retrieval
+### ContextQuest: Hybrid Retrieval
 
 - **Retrieval Methods**: BM25 and embedding-based retrieval
 - **Hybrid Ranking**: Weighted combination of retrieval scores
@@ -147,7 +102,30 @@ Each application follows a similar structure while implementing domain-specific 
        Prep5 --- E;
     ```
 
-### 4. GraphQuery: Knowledge Navigator
+### FiscalAgent: Financial Insights
+
+- **Data Sources**: Integration with financial APIs (yfinance)
+- **Multi-agent System**: Web search and financial data agents
+- **Conversation Storage**: SQLite database for conversation history
+- **UI Components**: Tabbed interface for different functionalities
+- **Description:** The user interacts via a Streamlit UI (possibly tabbed). Queries are handled by a multi-agent backend. An orchestrator (likely leveraging Gemini logic) routes tasks to specialized agents: a Web Search agent and a Financial Data agent (using yfinance). Gemini 2.5 Pro synthesizes information from these agents and conversation history (stored in SQLite) to provide comprehensive answers, which are displayed in the UI.
+- **Mermaid Flowchart:**
+
+    ```mermaid
+    graph LR
+        A[User] --> B(Streamlit UI <br> w/ Tabs);
+        B -- NL Query --> C{"FiscalAgent Backend <br> (Multi-Agent System)"};
+        C -- Orchestration Logic --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
+        D -- Agent Tasking --> C;
+        C -- Web Search Task --> E[Web Search Agent];
+        E -- Web Results --> C;
+        C -- Financial Data Task --> F["Financial Data Agent <br> (uses yfinance)"];
+        F -- Financial Data --> C;
+        C -- Store/Retrieve History --> G[(SQLite DB <br> Conversation History)];
+        C -- Synthesized Answer --> B;
+    ```
+
+### GraphQuery: Knowledge Navigator
 
 - **Document Processing**: PDF text extraction and chunking
 - **Entity Extraction**: Identification of entities and relationships
@@ -186,6 +164,28 @@ Each application follows a similar structure while implementing domain-specific 
        Prep6 --- E;
        %% Visualization might also query the graph directly
        Prep6 ---- F;
+    ```
+
+### InsightAgent: Data Analysis
+
+- **Data Processing**: Functions to handle CSV and Excel file uploads
+- **Query Processing**: Natural language to SQL conversion using Gemini
+- **UI Components**: Streamlit interface with data visualization
+
+- **Description:** The user interacts via a Streamlit UI, uploading data (CSV/Excel) and entering natural language queries. The backend uses Gemini 2.5 Pro to interpret the query, potentially converting it to SQL or generating data analysis steps. Pandas is used to process the data according to the generated plan. Results and visualizations (using Plotly) are displayed back in the Streamlit UI.
+- **Mermaid Flowchart:**
+
+    ```mermaid
+    graph LR
+        A[User] --> B(Streamlit UI);
+        B -- Upload Data (CSV/Excel) & NL Query --> C{InsightAgent Backend};
+        C -- NL Query --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
+        D -- Analysis Plan / SQL Query --> C;
+        C -- Process Data --> E[Pandas Engine];
+        E -- Processed Data --> C;
+        C -- Generate Visuals --> F[Plotly];
+        F -- Visualization Data --> C;
+        C -- Results & Visuals --> B;
     ```
 
 ## Design Principles
