@@ -1,0 +1,11 @@
+text
+"Retrieval-Augmented Generation (RAG) is a technique that enhances large language models by retrieving relevant information from external knowledge sources before generating responses. This approach helps to ground the model's outputs in factual, up-to-date information."
+"RAG systems typically consist of three main components: a retriever that finds relevant documents, a generator (usually an LLM) that produces responses, and a knowledge base that stores the information to be retrieved."
+"The retrieval component in RAG can use various methods, including keyword-based retrieval (like BM25), dense vector retrieval using embeddings, or hybrid approaches that combine multiple retrieval techniques."
+"Vector databases are commonly used in RAG systems to store and efficiently search through document embeddings. Popular vector database options include Chroma, FAISS, Pinecone, and Weaviate."
+"Hybrid retrieval combines multiple retrieval methods to improve the quality and relevance of retrieved documents. For example, a system might use both keyword-based retrieval (BM25) and semantic search with embeddings."
+"The chunking strategy in RAG refers to how documents are split into smaller pieces before indexing. Effective chunking balances the need for context with the limitations of retrieval systems and LLM context windows."
+"Evaluation of RAG systems typically considers metrics like retrieval precision/recall, answer relevance, factual accuracy, and overall response quality. Tools like RAGAS and Athina can help automate this evaluation process."
+"Prompt engineering is crucial in RAG systems to effectively instruct the LLM on how to use the retrieved context. This includes strategies for handling multiple documents and distinguishing between retrieved information and model knowledge."
+"Reranking is a technique used in advanced RAG systems to improve retrieval quality by applying a secondary scoring mechanism to initially retrieved documents, often using cross-encoders or fine-tuned models."
+"Knowledge Graph RAG extends traditional RAG by incorporating structured knowledge in the form of graphs, allowing for more complex reasoning and relationship-based retrieval beyond simple document lookup."
