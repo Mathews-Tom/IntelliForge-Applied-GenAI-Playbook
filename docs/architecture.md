@@ -40,7 +40,8 @@ IntelliForge-Applied-GenAI-Playbook/
 │       └── gemini_utils.py # Gemini API utilities
 │
 ├── docs/                   # Documentation
-│   └── architecture.md     # IntelliForge architecture
+│   ├── figures/            # IntelliForge application architecture diagrams
+│   └── architecture.md     # IntelliForge applications architecture documentations
 │
 ├── .gitignore              # Git ignore file
 ├── LICENSE                 # Repository license file
