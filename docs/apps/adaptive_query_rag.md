@@ -1,9 +1,9 @@
 # Application Documentation: AdaptiveQueryRAG - Contextual Strategy Selection
 
-**Version:** 1.0
-**Parent Project:** [IntelliForge: Applied GenAI Playbook](../overview.md)
-**Application Folder:** [`apps/adaptive_query_rag/`](../../apps/adaptive_query_rag/)
-**App README:** [apps/adaptive_query_rag/README.md](../../apps/adaptive_query_rag/README.md)
+- **Version:** 1.0
+- **Parent Project:** [IntelliForge: Applied GenAI Playbook](../overview.md)
+- **Application Folder:** [`apps/adaptive_query_rag/`](../../apps/adaptive_query_rag/)
+- **App README:** [apps/adaptive_query_rag/README.md](../../apps/adaptive_query_rag/README.md)
 
 ---
 

@@ -1,9 +1,9 @@
 # Application Documentation: ToolAugmentedRAG - Retrieval + Live Data Integration
 
-**Version:** 1.0
-**Parent Project:** [IntelliForge: Applied GenAI Playbook](../overview.md)
-**Application Folder:** [`apps/tool_augmented_rag/`](../../apps/tool_augmented_rag/)
-**App README:** [apps/tool_augmented_rag/README.md](../../apps/tool_augmented_rag/README.md)
+- **Version:** 1.0
+- **Parent Project:** [IntelliForge: Applied GenAI Playbook](../overview.md)
+- **Application Folder:** [`apps/tool_augmented_rag/`](../../apps/tool_augmented_rag/)
+- **App README:** [apps/tool_augmented_rag/README.md](../../apps/tool_augmented_rag/README.md)
 
 ---
 
@@ -19,14 +19,14 @@ The goal is to showcase a more powerful and versatile RAG pattern that can provi
 
 ToolAugmentedRAG primarily demonstrates:
 
-* **Standard RAG:** As a baseline, it performs retrieval from an indexed static document store.
-* **Tool Use / Function Calling:** The system has access to a predefined set of "tools" (functions that interact with external APIs like `yfinance`, weather services, or search engines).
-* **Agentic Decision Making:** The core logic, potentially guided by an initial LLM call (using Gemini 2.5 Pro), analyzes the user query to determine:
+- **Standard RAG:** As a baseline, it performs retrieval from an indexed static document store.
+- **Tool Use / Function Calling:** The system has access to a predefined set of "tools" (functions that interact with external APIs like `yfinance`, weather services, or search engines).
+- **Agentic Decision Making:** The core logic, potentially guided by an initial LLM call (using Gemini 2.5 Pro), analyzes the user query to determine:
     1. Is the answer likely contained within the static documents?
     2. Does the query explicitly or implicitly require real-time or external information?
     3. If external information is needed, which specific tool(s) should be called?
-* **Information Synthesis:** The crucial step where the LLM (Gemini 2.5 Pro) combines potentially disparate pieces of information – structured data from APIs, text snippets from web searches, and context chunks from static documents – into a single, coherent natural language answer.
-* **Contextual Tool Invocation:** Tools are not called arbitrarily but invoked based on the context of the user's query.
+- **Information Synthesis:** The crucial step where the LLM (Gemini 2.5 Pro) combines potentially disparate pieces of information – structured data from APIs, text snippets from web searches, and context chunks from static documents – into a single, coherent natural language answer.
+- **Contextual Tool Invocation:** Tools are not called arbitrarily but invoked based on the context of the user's query.
 
 ## 3. Architecture & Workflow
 
@@ -45,13 +45,13 @@ Requires the standard indexing phase for the static knowledge base:
 1. **User Query:** User submits a query via the Streamlit UI (`src/app.py`).
 2. **Initial RAG Retrieval:** The backend performs standard retrieval from the static document store (e.g., vector search) via `core/utils/retrieval_utils.py`. This provides baseline context.
 3. **Tool Use Decision Module:**
-    * The backend analyzes the user query (and potentially the initially retrieved context). This might involve rules-based logic (e.g., keywords like "current stock price", "weather in...") or an LLM call (Gemini 2.5 Pro via `core/llm/gemini_utils.py`) prompted to determine if any predefined tools are needed and which ones.
+    - The backend analyzes the user query (and potentially the initially retrieved context). This might involve rules-based logic (e.g., keywords like "current stock price", "weather in...") or an LLM call (Gemini 2.5 Pro via `core/llm/gemini_utils.py`) prompted to determine if any predefined tools are needed and which ones.
 4. **Conditional Tool Execution:**
-    * If the decision module determines a tool is needed, the backend calls the corresponding function (e.g., fetch stock data using `yfinance`, call weather API, perform web search using `requests` or a dedicated library).
-    * The results from the tool(s) are collected (e.g., current price, temperature, search snippets).
+    - If the decision module determines a tool is needed, the backend calls the corresponding function (e.g., fetch stock data using `yfinance`, call weather API, perform web search using `requests` or a dedicated library).
+    - The results from the tool(s) are collected (e.g., current price, temperature, search snippets).
 5. **Context Aggregation / Data Integration:** The backend combines:
-    * The context retrieved from the static RAG step.
-    * The data retrieved from any executed external tools.
+    - The context retrieved from the static RAG step.
+    - The data retrieved from any executed external tools.
 6. **Final Answer Synthesis:** A consolidated prompt containing the original query, the static context, and the live tool results is sent to Gemini 2.5 Pro (via `core/llm/gemini_utils.py`), instructing it to synthesize all available information into a comprehensive answer.
 7. **Display Results:** The final, synthesized answer, possibly indicating which tools were used or displaying the raw tool output alongside, is shown in the Streamlit UI.
 
@@ -110,20 +110,20 @@ graph TD
 
 ## 4. Key Features
 
-* **Blends Static & Live Data:** Combines information from a fixed knowledge base with real-time external sources.
-* **Automated Tool Selection:** Intelligently determines when to call external tools based on the query.
-* **API Integration Examples:** Demonstrates connections to common APIs (finance, weather, search).
-* **Comprehensive Answers:** Provides more complete and up-to-date responses than standard RAG alone.
-* **Agentic Capability:** Shows the LLM acting as part of an agent that can perceive (query), reason (decide tool use), and act (call APIs).
+- **Blends Static & Live Data:** Combines information from a fixed knowledge base with real-time external sources.
+- **Automated Tool Selection:** Intelligently determines when to call external tools based on the query.
+- **API Integration Examples:** Demonstrates connections to common APIs (finance, weather, search).
+- **Comprehensive Answers:** Provides more complete and up-to-date responses than standard RAG alone.
+- **Agentic Capability:** Shows the LLM acting as part of an agent that can perceive (query), reason (decide tool use), and act (call APIs).
 
 ## 5. Technology Stack
 
-* **Core LLM:** Google Gemini 2.5 Pro
-* **Language:** Python 3.8+
-* **Web Framework:** Streamlit
-* **Static Retrieval:** Vector DB (e.g., ChromaDB), Embedding Models via `core/utils/retrieval_utils.py`.
-* **Tool APIs:** `yfinance` (Stocks), `requests` (for generic APIs like weather, search), potentially dedicated search libraries (e.g., `google-api-python-client`, `duckduckgo_search`).
-* **Core Utilities:** `google-generativeai`, `python-dotenv`, `pandas`.
+- **Core LLM:** Google Gemini 2.5 Pro
+- **Language:** Python 3.8+
+- **Web Framework:** Streamlit
+- **Static Retrieval:** Vector DB (e.g., ChromaDB), Embedding Models via `core/utils/retrieval_utils.py`.
+- **Tool APIs:** `yfinance` (Stocks), `requests` (for generic APIs like weather, search), potentially dedicated search libraries (e.g., `google-api-python-client`, `duckduckgo_search`).
+- **Core Utilities:** `google-generativeai`, `python-dotenv`, `pandas`.
 
 ## 6. Setup and Usage
 
@@ -138,14 +138,14 @@ graph TD
 2. **Create & Activate Virtual Environment (Recommended).**
 
 3. **Install Requirements:**
-    * Create/update `apps/tool_augmented_rag/requirements.txt` (e.g., `streamlit`, `google-generativeai`, `python-dotenv`, `chromadb-client`, `yfinance`, `requests`, etc.).
-    * Install: `pip install -r requirements.txt`
+    - Create/update `apps/tool_augmented_rag/requirements.txt` (e.g., `streamlit`, `google-generativeai`, `python-dotenv`, `chromadb-client`, `yfinance`, `requests`, etc.).
+    - Install: `pip install -r requirements.txt`
 
 4. **API Keys (External Tools):** Note that besides the Google API key, some external tools (like specific weather or search APIs) might require their *own* API keys. These would also need to be configured, likely via the `.env` file or environment variables.
 
 5. **Prepare Data & Indexes:**
-    * Place source documents for the static knowledge base in `apps/tool_augmented_rag/data/`.
-    * Run the necessary indexing process (using shared utils) to populate the vector store.
+    - Place source documents for the static knowledge base in `apps/tool_augmented_rag/data/`.
+    - Run the necessary indexing process (using shared utils) to populate the vector store.
 
 6. **Run the Application:**
 
@@ -154,16 +154,16 @@ graph TD
     ```
 
 7. **Interact:**
-    * Open the local URL provided by Streamlit.
-    * Enter queries. Try queries that obviously need live data (e.g., "What is the current weather in London?", "What is the latest stock price for TSLA based on this report?") alongside queries answerable from static docs.
-    * Observe how the system responds. For queries requiring live data, the UI might indicate which tool was called, and the final answer should incorporate the fresh information alongside any relevant context from the static documents.
+    - Open the local URL provided by Streamlit.
+    - Enter queries. Try queries that obviously need live data (e.g., "What is the current weather in London?", "What is the latest stock price for TSLA based on this report?") alongside queries answerable from static docs.
+    - Observe how the system responds. For queries requiring live data, the UI might indicate which tool was called, and the final answer should incorporate the fresh information alongside any relevant context from the static documents.
 
 ## 7. Potential Future Enhancements
 
-* Add more tools (e.g., calendar access, database query tool, code execution).
-* Implement more sophisticated tool selection logic (e.g., LLM choosing from a larger tool list).
-* Handle tools that require multiple steps or user interaction.
-* Improve error handling for failed API calls.
-* Implement caching for tool results where appropriate (e.g., cache weather for a short period).
-* Allow users to dynamically add or configure available tools.
-* Explore LLM function calling capabilities provided directly by the Gemini API for more structured tool interaction.
+- Add more tools (e.g., calendar access, database query tool, code execution).
+- Implement more sophisticated tool selection logic (e.g., LLM choosing from a larger tool list).
+- Handle tools that require multiple steps or user interaction.
+- Improve error handling for failed API calls.
+- Implement caching for tool results where appropriate (e.g., cache weather for a short period).
+- Allow users to dynamically add or configure available tools.
+- Explore LLM function calling capabilities provided directly by the Gemini API for more structured tool interaction.
