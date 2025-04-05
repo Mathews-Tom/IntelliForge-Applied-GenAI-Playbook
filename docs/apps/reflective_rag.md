@@ -60,34 +60,37 @@ Similar to ContextQuest, this application requires an initial indexing phase (ty
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
 graph TD
-    %% Title at the top
-    classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
-    title["ReflectiveRAG: Self-Correcting Retrieval Architecture"]:::titleClass;
+    subgraph " "
+            %% Title at the top
+            classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+            title["ReflectiveRAG: Self-Correcting Retrieval Architecture"]:::titleClass;
 
-    A[User] --> B(Streamlit UI);
-    B -- Query --> C{ReflectiveRAG Backend};
+            A[User] --> B(Streamlit UI);
+            B -- Query --> C{ReflectiveRAG Backend};
 
-    %% Initial Retrieval
-    C --> D["Initial Retrieval <br> (core/utils/retrieval_utils)"];
-    D -- Retrieved Documents --> F["Draft Answer Generation <br> (core/llm/gemini_utils)"];
+            %% Initial Retrieval
+            C --> D["Initial Retrieval <br> (core/utils/retrieval_utils)"];
+            D -- Retrieved Documents --> F["Draft Answer Generation <br> (core/llm/gemini_utils)"];
 
-    %% Self-Correction Loop
-    F -- Draft Answer & Context --> G{Self-Correction Module};
-    G -- Prompt for Evaluation --> H["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro for Evaluation)"];
-    H -- Evaluation Scores (Relevance, Faithfulness) --> G;
+            %% Self-Correction Loop
+            F -- Draft Answer & Context --> G{Self-Correction Module};
+            G -- Prompt for Evaluation --> H["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro for Evaluation)"];
+            H -- Evaluation Scores (Relevance, Faithfulness) --> G;
 
-    %% Conditional Re-Retrieval / Refinement
-    G -- "Issues Detected? |Yes|" --> I["Reformulate Query? (Optional LLM Call)"];
-    I --> J["Re-Retrieval <br> (core/utils/retrieval_utils)"];
-    J -- New/Better Documents --> K["Refine Answer <br> (Calls LLM)"];
+            %% Conditional Re-Retrieval / Refinement
+            G -- "Issues Detected? |Yes|" --> I["Reformulate Query? (Optional LLM Call)"];
+            I --> J["Re-Retrieval <br> (core/utils/retrieval_utils)"];
+            J -- New/Better Documents --> K["Refine Answer <br> (Calls LLM)"];
 
-    %% Final Output Path
-    G -- "Issues Detected? |No"| --> L[Final Answer = Draft Answer];
-    K -- Refined Answer --> L;
-    L -- Display Final Answer & Reflection Info --> B;
+            %% Final Output Path
+            G -- "Issues Detected? |No"| --> L[Final Answer = Draft Answer];
+            K -- Refined Answer --> L;
+            L -- Display Final Answer & Reflection Info --> B;
 
-    %% Position title at the top
-    title ~~~ A;
+            %% Position title at the top
+            title ~~~ A;
+
+    end
 ```
 
 ## 4. Key Features
@@ -109,7 +112,7 @@ graph TD
 
 ## 6. Setup and Usage
 
-*(Assumes the main project setup is complete.)*
+*(Assumes the main project setup, including cloning and `.env` file creation, is complete as described in the main project [README](../../README.md) or [Overview](../overview.md).)*
 
 1. **Navigate to App Directory:**
 

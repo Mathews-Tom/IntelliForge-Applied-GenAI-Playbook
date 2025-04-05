@@ -59,40 +59,43 @@ This phase handles user interaction with the constructed graph.
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
 graph TD
-   %% Title at the top
-   classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
-   title["GraphQuery: Knowledge Navigator Architecture"]:::titleClass;
+    subgraph " "
+           %% Title at the top
+           classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+           title["GraphQuery: Knowledge Navigator Architecture"]:::titleClass;
 
-   subgraph Graph Building Phase
-       direction LR
-       Prep1[PDF Document] --> Prep2[PyPDF2 Text Extraction];
-       Prep2 --> Prep3{Text Chunking};
-       Prep3 --> Prep4["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro for Entity/Rel Extraction)"];
-       Prep4 -- Entities & Relations --> Prep5{Graph Construction};
-       Prep5 --> Prep6[(Knowledge Graph <br> NetworkX)];
-   end
+           subgraph Graph Building Phase
+               direction LR
+               Prep1[PDF Document] --> Prep2[PyPDF2 Text Extraction];
+               Prep2 --> Prep3{Text Chunking};
+               Prep3 --> Prep4["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro for Entity/Rel Extraction)"];
+               Prep4 -- Entities & Relations --> Prep5{Graph Construction};
+               Prep5 --> Prep6[(Knowledge Graph <br> NetworkX)];
+           end
 
-   subgraph Online Query Phase
-       direction LR
-        A[User] --> B(Streamlit UI);
-        B -- NL Query --> C{GraphQuery Backend};
-        C -- Interpret Query / Generate Graph Query --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
-        D -- Graph Query Logic --> C;
-        C -- Query Graph --> E[(Knowledge Graph <br> NetworkX)];
-        E -- Retrieved Graph Context --> C;
-        C -- Query + Graph Context --> D;
-        D -- Synthesized Answer --> C;
-        C -- Answer + Graph Data --> F["3D Graph Visualization Engine <br> (Plotly)"];
-        C -- Synthesized Answer --> B;
-        F -- Interactive Graph --> B;
-   end
+           subgraph Online Query Phase
+               direction LR
+                A[User] --> B(Streamlit UI);
+                B -- NL Query --> C{GraphQuery Backend};
+                C -- Interpret Query / Generate Graph Query --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
+                D -- Graph Query Logic --> C;
+                C -- Query Graph --> E[(Knowledge Graph <br> NetworkX)];
+                E -- Retrieved Graph Context --> C;
+                C -- Query + Graph Context --> D;
+                D -- Synthesized Answer --> C;
+                C -- Answer + Graph Data --> F["3D Graph Visualization Engine <br> (Plotly)"];
+                C -- Synthesized Answer --> B;
+                F -- Interactive Graph --> B;
+           end
 
-   %% Connect Graph Store
-   Prep6 --- E;
-   %% Visualization might also query the graph directly
-   Prep6 ---- F;
+           %% Connect Graph Store
+           Prep6 --- E;
+           %% Visualization might also query the graph directly
+           Prep6 ---- F;
 
-   %% Position title implicitly
+           %% Position title implicitly
+
+    end
 ```
 
 ## 4. Key Features
@@ -115,14 +118,16 @@ graph TD
 
 ## 6. Setup and Usage
 
-*(Assumes the main project setup, including cloning and `.env` file creation, is complete.)*
+*(Assumes the main project setup, including cloning and `.env` file creation, is complete as described in the main project [README](../../README.md) or [Overview](../overview.md).)*
 
 1. **Navigate to App Directory:**
+
     ```bash
     cd path/to/IntelliForge-Applied-GenAI-Playbook/apps/graph_query
     ```
 
 2. **Create & Activate Virtual Environment (Recommended):**
+
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
@@ -131,14 +136,17 @@ graph TD
 3. **Install Requirements:**
     - Create/update `apps/graph_query/requirements.txt` with necessary libraries (e.g., `streamlit`, `google-generativeai`, `python-dotenv`, `PyPDF2`, `networkx`, `plotly`).
     - Install:
+
         ```bash
         pip install -r requirements.txt
         ```
 
 4. **Run the Application:**
+
     ```bash
     streamlit run src/app.py
     ```
+
 5. **Interact:**
     - Open the local URL provided by Streamlit in your browser.
     - Use the file uploader to select a PDF document.

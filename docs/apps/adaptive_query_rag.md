@@ -17,18 +17,18 @@ The primary goal is to illustrate that tailoring the retrieval strategy to the q
 
 AdaptiveQueryRAG demonstrates several related AI concepts:
 
-* **Query Analysis/Classification:** Using an LLM (Gemini 2.5 Pro) to pre-process the user's query to understand its underlying intent or type. Example classifications might include:
-  * *Factoid:* Seeking a specific, short answer.
-  * *Summary:* Requesting a condensed overview of a topic.
-  * *Comparison:* Asking to compare/contrast two or more entities/concepts.
-  * *Explanation:* Needing a detailed description or reasoning.
-  * *Opinion/Subjective:* Seeking opinions or analysis (if the knowledge base contains them).
-* **Conditional Logic:** Implementing rules or logic that map the classified query type to a specific retrieval strategy or combination of strategies.
-* **Dynamic Strategy Selection:** The core idea – choosing the retrieval method(s) at runtime based on the query classification. This might involve:
-  * Selecting a single best method (e.g., vector search for factoids, keyword for summaries).
-  * Using a hybrid approach but dynamically adjusting the weights (e.g., higher weight for semantic search in explanatory queries).
-  * Triggering specialized retrieval flows (e.g., multi-query retrieval for comparisons).
-* **Parametric Tuning (Optional):** The selected strategy might also involve adjusting parameters like the number of documents to retrieve (`top_k`), chunk sizes, or similarity thresholds based on the query type.
+- **Query Analysis/Classification:** Using an LLM (Gemini 2.5 Pro) to pre-process the user's query to understand its underlying intent or type. Example classifications might include:
+  - *Factoid:* Seeking a specific, short answer.
+  - *Summary:* Requesting a condensed overview of a topic.
+  - *Comparison:* Asking to compare/contrast two or more entities/concepts.
+  - *Explanation:* Needing a detailed description or reasoning.
+  - *Opinion/Subjective:* Seeking opinions or analysis (if the knowledge base contains them).
+- **Conditional Logic:** Implementing rules or logic that map the classified query type to a specific retrieval strategy or combination of strategies.
+- **Dynamic Strategy Selection:** The core idea – choosing the retrieval method(s) at runtime based on the query classification. This might involve:
+  - Selecting a single best method (e.g., vector search for factoids, keyword for summaries).
+  - Using a hybrid approach but dynamically adjusting the weights (e.g., higher weight for semantic search in explanatory queries).
+  - Triggering specialized retrieval flows (e.g., multi-query retrieval for comparisons).
+- **Parametric Tuning (Optional):** The selected strategy might also involve adjusting parameters like the number of documents to retrieve (`top_k`), chunk sizes, or similarity thresholds based on the query type.
 
 ## 3. Architecture & Workflow
 
@@ -47,12 +47,12 @@ Similar to other RAG applications, an initial indexing phase is required:
 
 1. **User Query:** User submits a query via the Streamlit UI (`src/app.py`).
 2. **Query Analysis Module:**
-    * The backend sends the user query to Gemini 2.5 Pro (via `core/llm/gemini_utils.py`) with a prompt specifically designed to classify the query type or intent.
-    * The LLM returns the classification (e.g., "SUMMARY", "FACTOID", "COMPARISON").
+    - The backend sends the user query to Gemini 2.5 Pro (via `core/llm/gemini_utils.py`) with a prompt specifically designed to classify the query type or intent.
+    - The LLM returns the classification (e.g., "SUMMARY", "FACTOID", "COMPARISON").
 3. **Strategy Selection Logic:** Based on the classification returned by the LLM, the backend logic selects the appropriate retrieval strategy. This is typically implemented as conditional logic (if/elif/else) within the application (`src/`). Examples:
-    * If "FACTOID", prioritize vector search with `top_k=3`.
-    * If "SUMMARY", use keyword search or vector search with larger `top_k` and potentially retrieve larger document chunks.
-    * If "COMPARISON", trigger two separate searches (one for each item) and combine results, or use a hybrid approach.
+    - If "FACTOID", prioritize vector search with `top_k=3`.
+    - If "SUMMARY", use keyword search or vector search with larger `top_k` and potentially retrieve larger document chunks.
+    - If "COMPARISON", trigger two separate searches (one for each item) and combine results, or use a hybrid approach.
 4. **Retrieval Execution:** The chosen retrieval method(s) are executed using functions from `core/utils/retrieval_utils.py`, potentially with dynamically adjusted parameters.
 5. **Context Formulation:** The retrieved context chunks are collected and formatted.
 6. **LLM Generation:** The original query and retrieved context are sent to Gemini 2.5 Pro (via `core/llm/gemini_utils.py`) for final answer generation.
@@ -63,64 +63,67 @@ Similar to other RAG applications, an initial indexing phase is required:
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
 graph LR
-    %% Title at the top
-    classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
-    title["AdaptiveQueryRAG: Contextual Strategy Selection Architecture"]:::titleClass;
+    subgraph " "
+            %% Title at the top
+            classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+            title["AdaptiveQueryRAG: Contextual Strategy Selection Architecture"]:::titleClass;
 
-    A[User] --> B(Streamlit UI);
-    B -- Query --> C{AdaptiveQueryRAG Backend};
+            A[User] --> B(Streamlit UI);
+            B -- Query --> C{AdaptiveQueryRAG Backend};
 
-    %% Query Analysis
-    C --> D[Query Analyzer Module];
-    D -- Send Query for Classification --> E["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
-    E -- Query Classification (e.g., SUMMARY) --> D;
+            %% Query Analysis
+            C --> D[Query Analyzer Module];
+            D -- Send Query for Classification --> E["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
+            E -- Query Classification (e.g., SUMMARY) --> D;
 
-    %% Strategy Selection
-    D -- Classified Query Type --> F{Strategy Selector Logic};
-    subgraph Retrieval Strategies
-        direction LR
-        G["Dense Vector Search"]
-        H["Keyword Search (BM25)"]
-        I["Hybrid Search (Weighted)"]
-        J["Multi-Query Retrieval Flow"]
+            %% Strategy Selection
+            D -- Classified Query Type --> F{Strategy Selector Logic};
+            subgraph Retrieval Strategies
+                direction LR
+                G["Dense Vector Search"]
+                H["Keyword Search (BM25)"]
+                I["Hybrid Search (Weighted)"]
+                J["Multi-Query Retrieval Flow"]
+            end
+            F -- Selects Strategy --> G;
+            F -- Selects Strategy --> H;
+            F -- Selects Strategy --> I;
+            F -- Selects Strategy --> J;
+
+            %% Results Combination/Processing
+            Retrieval_Strategies -- Retrieved Documents --> K{Context Processor};
+
+            %% Answer Generation
+            K -- Formatted Context --> L[Answer Generator Module];
+            L -- Query + Context --> E;
+            E -- Generated Answer --> L;
+            L -- Final Answer --> C;
+            C -- Final Answer + Strategy Info --> B;
+
+            %% Position title implicitly
+
     end
-    F -- Selects Strategy --> G;
-    F -- Selects Strategy --> H;
-    F -- Selects Strategy --> I;
-    F -- Selects Strategy --> J;
-
-    %% Results Combination/Processing
-    Retrieval_Strategies -- Retrieved Documents --> K{Context Processor};
-
-    %% Answer Generation
-    K -- Formatted Context --> L[Answer Generator Module];
-    L -- Query + Context --> E;
-    E -- Generated Answer --> L;
-    L -- Final Answer --> C;
-    C -- Final Answer + Strategy Info --> B;
-
-    %% Position title implicitly
 ```
 
 ## 4. Key Features
 
-* **Query Classification:** Uses LLM to automatically categorize user queries.
-* **Dynamic Strategy Selection:** Chooses retrieval methods (vector, keyword, hybrid, multi-query) based on the classification.
-* **Improved Relevance:** Aims to retrieve more relevant context by matching the strategy to the information need.
-* **Transparency (Potential UI Feature):** Displays the inferred query type and the retrieval strategy chosen.
-* **Flexible Retrieval Configuration:** Allows different parameters or methods to be associated with different query types.
+- **Query Classification:** Uses LLM to automatically categorize user queries.
+- **Dynamic Strategy Selection:** Chooses retrieval methods (vector, keyword, hybrid, multi-query) based on the classification.
+- **Improved Relevance:** Aims to retrieve more relevant context by matching the strategy to the information need.
+- **Transparency (Potential UI Feature):** Displays the inferred query type and the retrieval strategy chosen.
+- **Flexible Retrieval Configuration:** Allows different parameters or methods to be associated with different query types.
 
 ## 5. Technology Stack
 
-* **Core LLM:** Google Gemini 2.5 Pro
-* **Language:** Python 3.8+
-* **Web Framework:** Streamlit
-* **Retrieval:** Vector DB (e.g., ChromaDB), Keyword Search (e.g., `rank_bm25`), Embedding Models via `core/utils/retrieval_utils.py`.
-* **Core Utilities:** `google-generativeai`, `python-dotenv`, `pandas`.
+- **Core LLM:** Google Gemini 2.5 Pro
+- **Language:** Python 3.8+
+- **Web Framework:** Streamlit
+- **Retrieval:** Vector DB (e.g., ChromaDB), Keyword Search (e.g., `rank_bm25`), Embedding Models via `core/utils/retrieval_utils.py`.
+- **Core Utilities:** `google-generativeai`, `python-dotenv`, `pandas`.
 
 ## 6. Setup and Usage
 
-*(Assumes the main project setup is complete.)*
+*(Assumes the main project setup, including cloning and `.env` file creation, is complete as described in the main project [README](../../README.md) or [Overview](../overview.md).)*
 
 1. **Navigate to App Directory:**
 
@@ -132,12 +135,12 @@ graph LR
 
 3. **Install Requirements:**
 
-    * Create/update `apps/adaptive_query_rag/requirements.txt` (e.g., `streamlit`, `google-generativeai`, `python-dotenv`, `chromadb-client`, `rank_bm25`, etc.).
-    * Install: `pip install -r requirements.txt`
+    - Create/update `apps/adaptive_query_rag/requirements.txt` (e.g., `streamlit`, `google-generativeai`, `python-dotenv`, `chromadb-client`, `rank_bm25`, etc.).
+    - Install: `pip install -r requirements.txt`
 
 4. **Prepare Data & Indexes:**
-    * Place source documents in `apps/adaptive_query_rag/data/`.
-    * Run the necessary indexing process (shared utils) to populate vector and keyword stores.
+    - Place source documents in `apps/adaptive_query_rag/data/`.
+    - Run the necessary indexing process (shared utils) to populate vector and keyword stores.
 
 5. **Run the Application:**
 
@@ -146,15 +149,15 @@ graph LR
     ```
 
 6. **Interact:**
-    * Open the local URL provided by Streamlit.
-    * Enter a query related to the indexed documents (try different types: "What is X?", "Summarize Y", "Compare A and B").
-    * Observe the final answer. The UI might indicate the classified query type and the retrieval strategy employed by the backend. Compare results for different query types.
+    - Open the local URL provided by Streamlit.
+    - Enter a query related to the indexed documents (try different types: "What is X?", "Summarize Y", "Compare A and B").
+    - Observe the final answer. The UI might indicate the classified query type and the retrieval strategy employed by the backend. Compare results for different query types.
 
 ## 7. Potential Future Enhancements
 
-* Refine the query classification taxonomy and prompting for greater accuracy.
-* Implement more sophisticated strategy selection logic, potentially learned rather than rule-based.
-* Allow dynamic adjustment of retrieval parameters (e.g., `top_k`) based on classification.
-* Combine adaptive selection with self-correction features from ReflectiveRAG.
-* Provide user controls to override the automatically selected strategy.
-* Evaluate the performance uplift compared to a non-adaptive baseline RAG system.
+- Refine the query classification taxonomy and prompting for greater accuracy.
+- Implement more sophisticated strategy selection logic, potentially learned rather than rule-based.
+- Allow dynamic adjustment of retrieval parameters (e.g., `top_k`) based on classification.
+- Combine adaptive selection with self-correction features from ReflectiveRAG.
+- Provide user controls to override the automatically selected strategy.
+- Evaluate the performance uplift compared to a non-adaptive baseline RAG system.
