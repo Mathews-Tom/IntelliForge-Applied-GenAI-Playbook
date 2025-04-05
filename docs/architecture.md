@@ -2,6 +2,12 @@
 
 This document provides a high-level overview of the architecture and design principles used in the IntelliForge: Applied GenAI Playbook repository.
 
+This document provides a high-level overview of the architecture and design principles used in the IntelliForge: Applied GenAI Playbook repository.
+
+## System Architecture
+
+The repository is organized as a collection of independent applications that share a common core for Gemini API integration. This modular approach allows each application to focus on its specific domain while leveraging shared utilities for LLM interaction.
+
 ## Recent Updates
 
 ### New Applications
