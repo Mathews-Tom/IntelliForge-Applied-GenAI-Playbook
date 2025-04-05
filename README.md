@@ -4,7 +4,7 @@ A collection of demo applications showcasing applied Generative AI use cases pow
 
 ## 🚀 Overview
 
-IntelliForge is a comprehensive playbook of practical Generative AI applications, designed to demonstrate the capabilities of Google's Gemini 2.5 Pro model across various domains. This repository contains four specialized applications, each focusing on a different aspect of AI-powered data interaction and analysis.
+IntelliForge is a comprehensive playbook of practical Generative AI applications, designed to demonstrate the capabilities of Google's Gemini 2.5 Pro model across various domains. This repository contains eight specialized applications, each focusing on a different aspect of AI-powered data interaction and analysis, with a particular emphasis on advanced Retrieval-Augmented Generation (RAG) techniques.
 
 ## 📊 Applications
 
@@ -52,6 +52,50 @@ A knowledge graph-based system that extracts entities and relationships from doc
 - 3D graph visualization
 - Relevant subgraph identification
 
+### [ReflectiveRAG: Self-Correcting Retrieval](apps/reflective_rag/)
+
+An enhanced RAG system that incorporates self-correction and reflection to improve retrieval and answer quality.
+
+**Key Features:**
+
+- Self-evaluation of retrieval relevance
+- Answer faithfulness checking
+- Query reformulation
+- Transparent reflection process
+
+### [AdaptiveQueryRAG: Contextual Strategy Selection](apps/adaptive_query_rag/)
+
+A RAG system that adapts its retrieval strategy based on query analysis and classification.
+
+**Key Features:**
+
+- Query type classification
+- Dynamic retrieval strategy selection
+- Strategy-specific parameter tuning
+- Retrieval method weighting
+
+### [MultiPerspectiveSynth: Synthesizing Diverse Sources](apps/multi_perspective_synth/)
+
+A RAG system that retrieves and synthesizes information from multiple, potentially conflicting sources.
+
+**Key Features:**
+
+- Multi-source document handling
+- Perspective identification
+- Agreement and disagreement detection
+- Balanced information synthesis
+
+### [ToolAugmentedRAG: Retrieval + Live Data Integration](apps/tool_augmented_rag/)
+
+A RAG system that combines static document retrieval with dynamic data from external tools and APIs.
+
+**Key Features:**
+
+- Tool use detection
+- API integration (stocks, weather, web search)
+- Static and dynamic data synthesis
+- Context-aware tool selection
+
 ## 🛠️ Core Components
 
 All applications are built on a shared foundation:
@@ -59,6 +103,8 @@ All applications are built on a shared foundation:
 - **Gemini 2.5 Pro Integration**: Standardized access to Google's advanced language model
 - **Streamlit UI**: Clean, interactive user interfaces
 - **Modular Design**: Reusable components and utilities
+- **Shared Utilities**: Common functions for data processing, UI, file I/O, and retrieval
+- **Advanced RAG Techniques**: Self-correction, adaptive retrieval, multi-source synthesis, and tool integration
 - **Comprehensive Documentation**: Detailed READMEs for each application
 
 ## 🔧 Installation
@@ -73,7 +119,7 @@ All applications are built on a shared foundation:
 2. Set up your Google API key:
    - Create a `.env` file in the project root with:
 
-     ```
+     ```bash
      GOOGLE_API_KEY=your_google_api_key_here
      ```
 
