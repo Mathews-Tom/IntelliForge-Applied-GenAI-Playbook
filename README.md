@@ -4,7 +4,7 @@ A collection of demo applications showcasing applied Generative AI use cases pow
 
 ## 🚀 Overview
 
-IntelliForge is a comprehensive playbook of practical Generative AI applications, designed to demonstrate the capabilities of Google's Gemini 2.5 Pro model across various domains. This repository contains eight specialized applications, each focusing on a different aspect of AI-powered data interaction and analysis, with a particular emphasis on advanced Retrieval-Augmented Generation (RAG) techniques.
+IntelliForge is a comprehensive playbook of practical Generative AI applications, designed to demonstrate the capabilities of Google's Gemini 2.5 Pro model across various domains. This repository contains nine specialized applications, each focusing on a different aspect of AI-powered data interaction and analysis, with a particular emphasis on advanced Retrieval-Augmented Generation (RAG) techniques.
 
 ## 📊 Applications
 
@@ -95,6 +95,17 @@ A RAG system that combines static document retrieval with dynamic data from exte
 - API integration (stocks, weather, web search)
 - Static and dynamic data synthesis
 - Context-aware tool selection
+
+### [WebQuestRAG: Dynamic Web RAG Agent](apps/web_quest_rag/)
+
+A RAG system that dynamically builds knowledge bases from web content using crawl4ai.
+
+**Key Features:**
+
+- Dynamic web crawling
+- RAG-optimized content extraction
+- On-the-fly knowledge base creation
+- Multi-source web content synthesis
 
 ## 🛠️ Core Components
 

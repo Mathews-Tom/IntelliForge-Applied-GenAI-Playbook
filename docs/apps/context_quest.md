@@ -61,57 +61,60 @@ This is the interactive part when a user asks a question:
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
 graph LR
-    %% Title at the top
-    classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
-    title["ContextQuest: Hybrid Retrieval Architecture"]:::titleClass;
+    subgraph " "
+            %% Title at the top
+            classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+            title["ContextQuest: Hybrid Retrieval Architecture"]:::titleClass;
 
-    subgraph Offline Preparation
-        direction TB
-        Prep1[Documents] --> Prep2{Text Processing/Chunking};
-        Prep2 --> Prep3["Embedding Model <br> (e.g., text-embedding-004)"];
-        Prep3 --> Prep4[(ChromaDB Vector Store)];
-        Prep2 --> Prep5["Keyword Index <br> (BM25)"];
+            subgraph Offline Preparation
+                direction TB
+                Prep1[Documents] --> Prep2{Text Processing/Chunking};
+                Prep2 --> Prep3["Embedding Model <br> (e.g., text-embedding-004)"];
+                Prep3 --> Prep4[(ChromaDB Vector Store)];
+                Prep2 --> Prep5["Keyword Index <br> (BM25)"];
+            end
+
+            subgraph Online Query
+                direction LR
+                A[User] --> B(Streamlit UI);
+                B -- Query --> C{ContextQuest Backend};
+                C -- Query --> D[Vector Search];
+                D -- Vector Results --> F{Hybrid Ranker};
+                C -- Query --> E["Keyword Search <br> (BM25)"];
+                E -- Keyword Results --> F;
+                F -- Ranked Context --> C;
+                C -- Query + Context --> G["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
+                G -- Generated Answer --> C;
+                C -- Final Answer --> B;
+            end
+
+           %% Link offline stores to online retrieval components
+           Prep4 --- D;
+           Prep5 --- E;
+
+           %% Position title implicitly
+
+
     end
-
-    subgraph Online Query
-        direction LR
-        A[User] --> B(Streamlit UI);
-        B -- Query --> C{ContextQuest Backend};
-        C -- Query --> D[Vector Search];
-        D -- Vector Results --> F{Hybrid Ranker};
-        C -- Query --> E["Keyword Search <br> (BM25)"];
-        E -- Keyword Results --> F;
-        F -- Ranked Context --> C;
-        C -- Query + Context --> G["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
-        G -- Generated Answer --> C;
-        C -- Final Answer --> B;
-    end
-
-   %% Link offline stores to online retrieval components
-   Prep4 --- D;
-   Prep5 --- E;
-
-   %% Position title implicitly
-
 ```
 
 ## 4. Key Features
 
-* **Hybrid Search:** Combines BM25 keyword search and semantic vector search.
-* **Adjustable Ranking:** (Potential Feature) UI controls to adjust the weighting between keyword and semantic results.
-* **Document Handling:** Ability to process uploaded documents or use pre-indexed data.
-* **Contextual Answer Generation:** Uses Gemini 2.5 Pro to provide answers grounded in retrieved documents.
-* **Retrieval Evaluation:** (Potential Feature) Displays relevance scores or allows basic evaluation of retrieved chunks (using `core/utils/evaluation.py`).
+- **Hybrid Search:** Combines BM25 keyword search and semantic vector search.
+- **Adjustable Ranking:** (Potential Feature) UI controls to adjust the weighting between keyword and semantic results.
+- **Document Handling:** Ability to process uploaded documents or use pre-indexed data.
+- **Contextual Answer Generation:** Uses Gemini 2.5 Pro to provide answers grounded in retrieved documents.
+- **Retrieval Evaluation:** (Potential Feature) Displays relevance scores or allows basic evaluation of retrieved chunks (using `core/utils/evaluation.py`).
 
 ## 5. Technology Stack
 
-* **Core LLM:** Google Gemini 2.5 Pro
-* **Language:** Python 3.8+
-* **Web Framework:** Streamlit
-* **Keyword Search:** `rank_bm25` (or similar library via `core/utils/retrieval_utils.py`)
-* **Vector Store:** ChromaDB (or similar via `core/utils/retrieval_utils.py`)
-* **Embedding Model:** Google `text-embedding-004` (or other model via `core/utils/retrieval_utils.py`)
-* **Core Utilities:** `google-generativeai`, `python-dotenv`, `pandas` (for data handling), `numpy`.
+- **Core LLM:** Google Gemini 2.5 Pro
+- **Language:** Python 3.8+
+- **Web Framework:** Streamlit
+- **Keyword Search:** `rank_bm25` (or similar library via `core/utils/retrieval_utils.py`)
+- **Vector Store:** ChromaDB (or similar via `core/utils/retrieval_utils.py`)
+- **Embedding Model:** Google `text-embedding-004` (or other model via `core/utils/retrieval_utils.py`)
+- **Core Utilities:** `google-generativeai`, `python-dotenv`, `pandas` (for data handling), `numpy`.
 
 ## 6. Setup and Usage
 
@@ -131,16 +134,16 @@ graph LR
     ```
 
 3. **Install Requirements:**
-    * Create/update `apps/context_quest/requirements.txt` with necessary libraries (e.g., `streamlit`, `google-generativeai`, `python-dotenv`, `rank_bm25`, `chromadb-client`, `pandas`).
-    * Install:
+    - Create/update `apps/context_quest/requirements.txt` with necessary libraries (e.g., `streamlit`, `google-generativeai`, `python-dotenv`, `rank_bm25`, `chromadb-client`, `pandas`).
+    - Install:
 
         ```bash
         pip install -r requirements.txt
         ```
 
 4. **Prepare Data & Indexes:**
-    * Place your source documents (e.g., `.txt`, `.pdf`, `.csv`) in the `apps/context_quest/data/` directory.
-    * **(Crucial Step)** Run the indexing script or use the UI function (if implemented in `src/app.py`) to process the data, generate embeddings, and build the keyword/vector indexes. This step populates the ChromaDB and BM25 indexes based on the content in `data/`.
+    - Place your source documents (e.g., `.txt`, `.pdf`, `.csv`) in the `apps/context_quest/data/` directory.
+    - **(Crucial Step)** Run the indexing script or use the UI function (if implemented in `src/app.py`) to process the data, generate embeddings, and build the keyword/vector indexes. This step populates the ChromaDB and BM25 indexes based on the content in `data/`.
 
 5. **Run the Application:**
 
@@ -149,15 +152,15 @@ graph LR
     ```
 
 6. **Interact:**
-    * Open the local URL provided by Streamlit in your browser.
-    * Enter your query related to the indexed documents in the input field.
-    * (If applicable) Adjust any UI controls for hybrid search weighting.
-    * View the retrieved context (optional display) and the final answer generated by Gemini 2.5 Pro.
+    - Open the local URL provided by Streamlit in your browser.
+    - Enter your query related to the indexed documents in the input field.
+    - (If applicable) Adjust any UI controls for hybrid search weighting.
+    - View the retrieved context (optional display) and the final answer generated by Gemini 2.5 Pro.
 
 ## 7. Potential Future Enhancements
 
-* Implement more sophisticated ranking algorithms (e.g., RRF).
-* Add interactive controls for chunking strategy and embedding model selection.
-* Integrate more detailed evaluation metrics and visualization from `core/utils/evaluation.py`.
-* Allow users to upload documents directly through the UI for on-the-fly indexing.
-* Implement re-ranking using a cross-encoder model after initial hybrid retrieval.
+- Implement more sophisticated ranking algorithms (e.g., RRF).
+- Add interactive controls for chunking strategy and embedding model selection.
+- Integrate more detailed evaluation metrics and visualization from `core/utils/evaluation.py`.
+- Allow users to upload documents directly through the UI for on-the-fly indexing.
+- Implement re-ranking using a cross-encoder model after initial hybrid retrieval.

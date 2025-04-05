@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.13.3",
+    "crawl4ai>=0.5.0.post8",
     "google-generativeai>=0.8.4",
     "networkx>=3.4.2",
     "openpyxl>=3.1.5",

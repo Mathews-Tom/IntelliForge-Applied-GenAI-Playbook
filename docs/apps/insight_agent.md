@@ -50,25 +50,28 @@ InsightAgent facilitates a straightforward workflow from data upload to insight 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
 graph LR
-    %% Title at the top
-    classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
-    title["InsightAgent: Data Analysis Architecture"]:::titleClass;
+    subgraph " "
+            %% Title at the top
+            classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+            title["InsightAgent: Data Analysis Architecture"]:::titleClass;
 
-    A[User] --> B(Streamlit UI);
-    B -- Upload Data (CSV/Excel) --> C{InsightAgent Backend};
-    C -- Load Data --> E[Pandas Engine];
-    E -- DataFrame + Schema --> C;
+            A[User] --> B(Streamlit UI);
+            B -- Upload Data (CSV/Excel) --> C{InsightAgent Backend};
+            C -- Load Data --> E[Pandas Engine];
+            E -- DataFrame + Schema --> C;
 
-    B -- NL Query --> C;
-    C -- NL Query + Schema --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
-    D -- Analysis Plan / Pandas Code / SQL --> C;
-    C -- Execute Plan/Code --> E;
-    E -- Processed Data / Results --> C;
-    C -- Generate Visuals (Optional) --> F[Plotly];
-    F -- Visualization Data --> C;
-    C -- Format Results (Table, Text, Viz) --> B;
+            B -- NL Query --> C;
+            C -- NL Query + Schema --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
+            D -- Analysis Plan / Pandas Code / SQL --> C;
+            C -- Execute Plan/Code --> E;
+            E -- Processed Data / Results --> C;
+            C -- Generate Visuals (Optional) --> F[Plotly];
+            F -- Visualization Data --> C;
+            C -- Format Results (Table, Text, Viz) --> B;
 
-    %% Position title implicitly
+            %% Position title implicitly
+
+    end
 ```
 
 ## 4. Key Features
@@ -93,7 +96,7 @@ graph LR
 
 ## 6. Setup and Usage
 
-*(Assumes the main project setup, including cloning and `.env` file creation, is complete.)*
+*(Assumes the main project setup, including cloning and `.env` file creation, is complete as described in the main project [README](../../README.md) or [Overview](../overview.md).)*
 
 1. **Navigate to App Directory:**
 

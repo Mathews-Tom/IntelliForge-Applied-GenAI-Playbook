@@ -41,22 +41,25 @@ FiscalAgent integrates a user interface, backend logic acting as an agent orches
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
 graph LR
-    %% Title at the top
-    classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
-    title["FiscalAgent: Financial Insights Architecture"]:::titleClass;
+    subgraph " "
+            %% Title at the top
+            classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+            title["FiscalAgent: Financial Insights Architecture"]:::titleClass;
 
-    A[User] --> B(Streamlit UI <br> w/ Tabs);
-    B -- NL Query --> C{"FiscalAgent Backend <br> (Multi-Agent System/Orchestrator)"};
-    C -- Orchestration Logic / Query Analysis --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro for Analysis/Synthesis)"];
-    D -- Tooling Decision / Synthesis Request --> C;
-    C -- Trigger Web Search --> E["Web Search Agent <br> (Uses Search API / Scraper)"];
-    E -- Web Results --> C;
-    C -- Trigger Financial Data Retrieval --> F["Financial Data Agent <br> (Uses yfinance)"];
-    F -- Financial Data (Stocks, News, Info) --> C;
-    C -- Store/Retrieve History --> G[(SQLite DB <br> Conversation History)];
-    C -- Synthesized Answer & Data --> B;
+            A[User] --> B(Streamlit UI <br> w/ Tabs);
+            B -- NL Query --> C{"FiscalAgent Backend <br> (Multi-Agent System/Orchestrator)"};
+            C -- Orchestration Logic / Query Analysis --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro for Analysis/Synthesis)"];
+            D -- Tooling Decision / Synthesis Request --> C;
+            C -- Trigger Web Search --> E["Web Search Agent <br> (Uses Search API / Scraper)"];
+            E -- Web Results --> C;
+            C -- Trigger Financial Data Retrieval --> F["Financial Data Agent <br> (Uses yfinance)"];
+            F -- Financial Data (Stocks, News, Info) --> C;
+            C -- Store/Retrieve History --> G[(SQLite DB <br> Conversation History)];
+            C -- Synthesized Answer & Data --> B;
 
-    %% Position title implicitly
+            %% Position title implicitly
+
+    end
 ```
 
 ## 4. Key Features
@@ -82,7 +85,7 @@ graph LR
 
 ## 6. Setup and Usage
 
-*(Assumes the main project setup, including cloning and `.env` file creation, is complete.)*
+*(Assumes the main project setup, including cloning and `.env` file creation, is complete as described in the main project [README](../../README.md) or [Overview](../overview.md).)*
 
 1. **Navigate to App Directory:**
 

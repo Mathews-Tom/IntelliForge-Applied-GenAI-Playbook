@@ -2,6 +2,51 @@
 
 This document provides a high-level overview of the architecture and design principles used in the IntelliForge: Applied GenAI Playbook repository.
 
+This document provides a high-level overview of the architecture and design principles used in the IntelliForge: Applied GenAI Playbook repository.
+
+## System Architecture
+
+The repository is organized as a collection of independent applications that share a common core for Gemini API integration. This modular approach allows each application to focus on its specific domain while leveraging shared utilities for LLM interaction.
+
+## Recent Updates
+
+### New Applications
+
+- **WebQuestRAG**: Dynamic web content RAG agent that builds knowledge bases from web content using crawl4ai
+  - Allows users to crawl websites or topics in real-time
+  - Creates on-the-fly knowledge bases from crawled content
+  - Supports URL-based or topic/keyword-based crawling
+  - Provides source attribution to specific web pages
+
+- **CompetitiveAnalysisAgent**: Web-based competitor intelligence tool for analyzing competitor websites
+  - Automatically extracts information from competitor websites
+  - Generates comparative analyses across multiple competitors
+  - Identifies product features, pricing, and positioning
+  - Answers specific questions about competitors with source attribution
+
+- **ResearchAssistantAgent**: Web-based research helper for gathering and synthesizing information on research topics
+  - Gathers information on specific research topics from the web
+  - Generates research summaries and answers research questions
+  - Provides properly formatted citations for sources
+  - Organizes research information by themes and categories
+
+### Enhanced Applications
+
+- **ContextQuest**: Updated to support web crawling as an alternative data source to the local knowledge base
+  - Added option to switch between local knowledge base and web crawling
+  - Integrated with the new web crawler module
+  - Supports URL-based and topic-based web content acquisition
+  - Maintains the same hybrid retrieval capabilities with the new data source
+
+### New Core Utilities
+
+- **Web Crawler**: Added `web_crawler.py` module with functions for web crawling and content extraction using crawl4ai
+  - Provides URL crawling with configurable depth and page limits
+  - Supports topic-based crawling using search results
+  - Extracts RAG-optimized content from web pages
+  - Includes mock implementations for testing without crawl4ai
+  - Handles content saving and loading for persistence
+
 ## System Architecture
 
 The repository is organized as a collection of independent applications that share a common core for Gemini API integration. This modular approach allows each application to focus on its specific domain while leveraging shared utilities for LLM interaction.
@@ -14,25 +59,21 @@ IntelliForge-Applied-GenAI-Playbook/
 │   ├── context_quest/      # ContextQuest: Hybrid Retrieval
 │   │   ├── src/            # Source code
 │   │   ├── data/           # Sample data
-│   │   ├── notebooks/      # Jupyter notebooks for experimentation/demos
 │   │   └── README.md       # App-specific README
 │   │
 │   ├── fiscal_agent/       # FiscalAgent: Financial Insights
 │   │   ├── src/            # Source code
 │   │   ├── data/           # Sample data
-│   │   ├── notebooks/      # Jupyter notebooks for experimentation/demos
 │   │   └── README.md       # App-specific README
 │   │
 │   ├── graph_query/        # GraphQuery: Knowledge Navigator
 │   │   ├── src/            # Source code
 │   │   ├── data/           # Sample data
-│   │   ├── notebooks/      # Jupyter notebooks for experimentation/demos
 │   │   └── README.md       # App-specific README
 │   │
 │   ├── insight_agent/      # InsightAgent: Data Analysis
 │   │   ├── src/            # Source code
 │   │   ├── data/           # Sample data
-│   │   ├── notebooks/      # Jupyter notebooks for experimentation/demos
 │   │   └── README.md       # App-specific README
 │   │
 │   ├── reflective_rag/     # ReflectiveRAG: Self-Correcting Retrieval
@@ -120,6 +161,16 @@ The shared utilities package provides common functionality used across multiple 
    - Answer faithfulness checking
    - Precision, recall, and F1 calculation
 
+6. **Web Crawler (`web_crawler.py`)**: Web crawling and content extraction
+   - URL crawling with crawl4ai
+   - Topic-based crawling
+   - RAG-optimized content extraction
+   - Crawled content management
+   - Mock implementations for testing
+   - Configurable crawling parameters
+   - Content saving and loading utilities
+   - Error handling and fallback mechanisms
+
 ## Application Architecture
 
 Each application follows a similar structure while implementing domain-specific functionality:
@@ -127,6 +178,7 @@ Each application follows a similar structure while implementing domain-specific 
 ### ContextQuest: Hybrid Retrieval
 
 - **Description:** This RAG application allows users to query documents via a Streamlit UI. The backend performs hybrid retrieval: searching a ChromaDB vector store (using embeddings like `text-embedding-004` or `gemini-embedding-exp`) and simultaneously using a keyword-based method (BM25). Results are ranked, combined, and fed as context along with the original query to Gemini 2.5 Pro. The final, context-aware answer is displayed in the UI. (Note: Embedding/Indexing is an offline step).
+- **Enhanced Features:** The application now supports web crawling as an alternative data source to the local knowledge base. Users can choose between using pre-loaded documents or dynamically crawling web content using crawl4ai.
 - **Retrieval Methods**: BM25 and embedding-based retrieval
 - **Hybrid Ranking**: Weighted combination of retrieval scores
 - **Evaluation**: Relevance assessment of retrieved documents
@@ -136,6 +188,7 @@ Each application follows a similar structure while implementing domain-specific 
     ```mermaid
     %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
     graph LR
+    subgraph " "
         %% Title at the top
         classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
         title["ContextQuest: Hybrid Retrieval Architecture"]:::titleClass;
@@ -162,12 +215,12 @@ Each application follows a similar structure while implementing domain-specific 
             C -- Final Answer --> B;
         end
 
-       %% Link offline stores to online retrieval components
-       Prep4 --- D;
-       Prep5 --- E;
+        %% Link offline stores to online retrieval components
+        Prep4 --- D;
+        Prep5 --- E;
 
-       %% Position title at the top
-
+        %% Position title at the top
+    end
     ```
 
 ### FiscalAgent: Financial Insights
@@ -182,6 +235,7 @@ Each application follows a similar structure while implementing domain-specific 
     ```mermaid
     %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
     graph LR
+    subgraph " "
         %% Title at the top
         classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
         title["FiscalAgent: Financial Insights Architecture"]:::titleClass;
@@ -199,6 +253,7 @@ Each application follows a similar structure while implementing domain-specific 
 
         %% Position title at the top
         title ~~~ A;
+    end
     ```
 
 ### GraphQuery: Knowledge Navigator
@@ -213,21 +268,22 @@ Each application follows a similar structure while implementing domain-specific 
     ```mermaid
     %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
     graph TD
-       %% Title at the top
-       classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
-       title["GraphQuery: Knowledge Navigator Architecture"]:::titleClass;
+    subgraph " "
+        %% Title at the top
+        classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+        title["GraphQuery: Knowledge Navigator Architecture"]:::titleClass;
 
-       subgraph Graph Building Phase
-           direction LR
-           Prep1[PDF Document] --> Prep2[PyPDF2 Text Extraction];
-           Prep2 --> Prep3{Text Chunking};
-           Prep3 --> Prep4["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro for Entity/Rel Extraction)"];
-           Prep4 -- Entities & Relations --> Prep5{Graph Construction};
-           Prep5 --> Prep6[(Knowledge Graph <br> NetworkX)];
-       end
+        subgraph Graph Building Phase
+            direction LR
+            Prep1[PDF Document] --> Prep2[PyPDF2 Text Extraction];
+            Prep2 --> Prep3{Text Chunking};
+            Prep3 --> Prep4["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro for Entity/Rel Extraction)"];
+            Prep4 -- Entities & Relations --> Prep5{Graph Construction};
+            Prep5 --> Prep6[(Knowledge Graph <br> NetworkX)];
+        end
 
-       subgraph Online Query Phase
-           direction LR
+        subgraph Online Query Phase
+            direction LR
             A[User] --> B(Streamlit UI);
             B -- NL Query --> C{GraphQuery Backend};
             C -- Interpret Query / Generate Graph Query --> D["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
@@ -239,15 +295,16 @@ Each application follows a similar structure while implementing domain-specific 
             C -- Answer + Graph Data --> F[3D Graph Visualization Engine];
             C -- Synthesized Answer --> B;
             F -- Interactive Graph --> B;
-       end
+        end
 
-       %% Connect Graph Store
-       Prep6 --- E;
-       %% Visualization might also query the graph directly
-       Prep6 ---- F;
+        %% Connect Graph Store
+        Prep6 --- E;
+        %% Visualization might also query the graph directly
+        Prep6 ---- F;
 
-       %% Position title at the top
-       title ~~~ Graph_Building_Phase[Graph Building Phase];
+        %% Position title at the top
+        title ~~~ Graph_Building_Phase[Graph Building Phase];
+    end
     ```
 
 ### InsightAgent: Data Analysis
@@ -261,6 +318,7 @@ Each application follows a similar structure while implementing domain-specific 
     ```mermaid
     %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
     graph LR
+    subgraph " "
         %% Title at the top
         classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
         title["InsightAgent: Data Analysis Architecture"]:::titleClass;
@@ -277,6 +335,7 @@ Each application follows a similar structure while implementing domain-specific 
 
         %% Position title at the top
         title ~~~ A;
+    end
     ```
 
 ### ReflectiveRAG: Self-Correcting Retrieval
@@ -291,6 +350,7 @@ Each application follows a similar structure while implementing domain-specific 
     ```mermaid
     %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
     graph TD
+    subgraph " "
         %% Title at the top
         classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
         title["ReflectiveRAG: Self-Correcting Retrieval Architecture"]:::titleClass;
@@ -321,6 +381,7 @@ Each application follows a similar structure while implementing domain-specific 
 
         %% Position title at the top
         title ~~~ A;
+    end
     ```
 
 ### AdaptiveQueryRAG: Contextual Strategy Selection
@@ -336,6 +397,7 @@ Each application follows a similar structure while implementing domain-specific 
     ```mermaid
     %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
     graph LR
+    subgraph " "
         %% Title at the top
         classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
         title["AdaptiveQueryRAG: Contextual Strategy Selection Architecture"]:::titleClass;
@@ -369,6 +431,7 @@ Each application follows a similar structure while implementing domain-specific 
 
         %% Position title at the top
         title ~~~ A;
+    end
     ```
 
 ### MultiPerspectiveSynth: Synthesizing Diverse Sources
@@ -383,6 +446,7 @@ Each application follows a similar structure while implementing domain-specific 
     ```mermaid
     %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
     graph TD
+    subgraph " "
         %% Title at the top
         classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
         title["MultiPerspectiveSynth: Synthesizing Diverse Sources Architecture"]:::titleClass;
@@ -408,6 +472,7 @@ Each application follows a similar structure while implementing domain-specific 
 
         %% Position title at the top
         title ~~~ A;
+    end
     ```
 
 ### ToolAugmentedRAG: Retrieval + Live Data Integration
@@ -422,6 +487,7 @@ Each application follows a similar structure while implementing domain-specific 
     ```mermaid
     %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
     graph TD
+    subgraph " "
         %% Title at the top
         classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
         title["ToolAugmentedRAG: Retrieval + Live Data Integration Architecture"]:::titleClass;
@@ -457,6 +523,151 @@ Each application follows a similar structure while implementing domain-specific 
 
         %% Position title at the top
         title ~~~ A;
+    end
+    ```
+
+### WebQuestRAG: Dynamic Web RAG Agent
+
+- **Description:** This application dynamically builds knowledge bases from web content. Users provide URLs or topics to crawl, and the system uses crawl4ai to extract RAG-optimized content from web pages. This content is then indexed into a temporary knowledge base that can be queried. The system retrieves relevant information from the crawled content and generates answers with source attribution to specific web pages.
+- **Web Crawling**: Dynamic web content acquisition
+- **Content Extraction**: RAG-optimized content processing
+- **Knowledge Base Creation**: On-the-fly indexing of web content
+- **Multi-Source Synthesis**: Combining information from multiple web sources
+- **Mermaid Flowchart:**
+
+    ```mermaid
+    %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
+    graph TD
+    subgraph " "
+        %% Title at the top
+        classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+        title["WebQuestRAG: Dynamic Web RAG Agent Architecture"]:::titleClass;
+
+        A[User] --> B(Streamlit UI);
+        B -- URLs/Topic --> C{WebQuestRAG Backend};
+
+        %% Web Crawling
+        C --> D["Web Crawler <br> (core/utils/web_crawler)"];
+        D -- Crawl URLs --> E[crawl4ai];
+        E -- Extracted Content --> F[Content Processor];
+
+        %% Knowledge Base Creation
+        F -- Processed Content --> G[(Temporary Knowledge Base)];
+
+        %% Query Processing
+        B -- Query --> H{Query Processor};
+        H -- Retrieve From --> G;
+        H -- Retrieved Content --> I[Answer Generator];
+        I --> J["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
+        J -- Generated Answer --> H;
+        H -- Answer with Sources --> B;
+
+        %% Position title at the top
+        title ~~~ A;
+    end
+    ```
+
+### CompetitiveAnalysisAgent: Web-Based Competitor Intelligence
+
+- **Description:** This application gathers, analyzes, and synthesizes information about competitors from their websites. Users provide competitor website URLs, and the system crawls these sites to extract relevant information. The application can generate competitive analyses, product comparisons, and answer specific questions about competitors, providing insights with source attribution to specific web pages.
+- **Competitor Crawling**: Targeted extraction from competitor websites
+- **Comparative Analysis**: Structured comparison of multiple competitors
+- **Feature Extraction**: Identification of product features and pricing
+- **Intelligence Synthesis**: Generation of competitive insights
+- **Mermaid Flowchart:**
+
+    ```mermaid
+    %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
+    graph TD
+    subgraph " "
+        %% Title at the top
+        classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+        title["CompetitiveAnalysisAgent: Web-Based Competitor Intelligence Architecture"]:::titleClass;
+
+        A[User] --> B(Streamlit UI);
+        B -- Competitor URLs --> C{CompetitiveAnalysisAgent Backend};
+
+        %% Competitor Crawling
+        C --> D["Web Crawler <br> (core/utils/web_crawler)"];
+        D -- Crawl Competitor Sites --> E[crawl4ai];
+        E -- Extracted Content --> F[Competitor Data Processor];
+
+        %% Competitor Knowledge Base
+        F -- Processed Content --> G[(Competitor Knowledge Base)];
+
+        %% Analysis Types
+        B -- Analysis Type --> H{Analysis Router};
+        H -- Overview --> I[Competitor Overview];
+        H -- Product Comparison --> J[Product Analysis];
+        H -- Marketing Analysis --> K[Marketing Analysis];
+        H -- Custom Query --> L[Custom Analysis];
+
+        %% Knowledge Retrieval
+        I -- Retrieve From --> G;
+        J -- Retrieve From --> G;
+        K -- Retrieve From --> G;
+        L -- Retrieve From --> G;
+
+        %% Analysis Generation
+        I --> M["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
+        J --> M;
+        K --> M;
+        L --> M;
+        M -- Generated Analysis --> B;
+
+        %% Position title at the top
+        title ~~~ A;
+    end
+    ```
+
+### ResearchAssistantAgent: Web-Based Research Helper
+
+- **Description:** This application helps users gather, organize, and synthesize information on specific research topics from the web. Users provide a research topic or specific research questions, and the system crawls relevant web sources to build a comprehensive knowledge base. The application can generate research summaries, answer specific research questions, and provide properly formatted citations for sources.
+- **Topic-Based Crawling**: Focused gathering of research information
+- **Source Credibility**: Prioritization of academic and reliable sources
+- **Citation Management**: Automatic generation of formatted citations
+- **Research Synthesis**: Organization and summarization of research findings
+- **Mermaid Flowchart:**
+
+    ```mermaid
+    %%{init: {'theme': 'base', 'themeVariables': { 'titleColor': '#333', 'titleFontSize': '20px'}}}%%
+    graph TD
+    subgraph " "
+        %% Title at the top
+        classDef titleClass fill:none,stroke:none,color:#333,font-size:18px,font-weight:bold;
+        title["ResearchAssistantAgent: Web-Based Research Helper Architecture"]:::titleClass;
+
+        A[User] --> B(Streamlit UI);
+        B -- Research Topic --> C{ResearchAssistantAgent Backend};
+
+        %% Research Crawling
+        C --> D["Web Crawler <br> (core/utils/web_crawler)"];
+        D -- Crawl Research Sources --> E[crawl4ai];
+        E -- Extracted Content --> F[Research Data Processor];
+
+        %% Research Knowledge Base
+        F -- Processed Content --> G[(Research Knowledge Base)];
+
+        %% Research Functions
+        B -- Function Selection --> H{Function Router};
+        H -- Research Summary --> I[Summary Generator];
+        H -- Citations --> J[Citation Generator];
+        H -- Research Question --> K[Question Answering];
+
+        %% Knowledge Retrieval
+        I -- Retrieve From --> G;
+        J -- Source Metadata --> G;
+        K -- Retrieve From --> G;
+
+        %% Output Generation
+        I --> L["core/llm/gemini_utils.py <br> (Gemini 2.5 Pro)"];
+        J --> L;
+        K --> L;
+        L -- Generated Output --> B;
+
+        %% Position title at the top
+        title ~~~ A;
+    end
     ```
 
 ## Design Principles
@@ -467,7 +678,8 @@ The architecture follows these key design principles:
 2. **Reusability**: Common functionality is extracted to shared modules
 3. **Consistency**: Similar patterns and approaches across applications
 4. **Extensibility**: Easy to add new applications or enhance existing ones
-5. **Documentation**: Comprehensive documentation at both repository and application levels
+5. **Web Integration**: Applications can leverage web content through crawling capabilities
+6. **Documentation**: Comprehensive documentation at both repository and application levels
 
 ## Technology Stack
 
@@ -476,6 +688,7 @@ The architecture follows these key design principles:
 - **UI Framework**: Streamlit
 - **Data Processing**: Pandas, NumPy
 - **Retrieval**: rank_bm25, scikit-learn (cosine similarity)
+- **Web Crawling**: crawl4ai
 - **Visualization**: Plotly
 - **Storage**: SQLite, CSV
 - **Domain-specific**: yfinance, NetworkX, PyPDF2
@@ -485,6 +698,17 @@ The architecture follows these key design principles:
 - API keys are managed through environment variables or .env files
 - No sensitive data is hardcoded in the source code
 - User-uploaded data is processed locally and not stored permanently
+
+## Architecture Principles
+
+The IntelliForge architecture is guided by the following architectural principles:
+
+1. **Modularity**: Each application is independent but shares common core components
+2. **Reusability**: Common functionality is extracted into shared utilities
+3. **Extensibility**: New applications can be added without modifying existing ones
+4. **Transparency**: Processes and decisions are made visible to users
+5. **Adaptability**: Applications can adapt to different data sources and user needs
+6. **Web Integration**: Applications can leverage web content through crawling capabilities
 
 ## Future Architecture Enhancements
 
@@ -496,4 +720,6 @@ Potential enhancements to the architecture include:
 4. **Monitoring**: Telemetry and usage statistics
 5. **Authentication**: User authentication and access control
 6. **Deployment**: Cloud deployment configurations
- 
+7. **Enhanced Web Crawling**: More sophisticated web crawling capabilities with site-specific adapters
+8. **Multi-Modal Support**: Integration with image and audio processing
+9. **Collaborative Features**: Multi-user collaboration capabilities
