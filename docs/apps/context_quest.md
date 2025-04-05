@@ -1,9 +1,9 @@
 # Application Documentation: ContextQuest - Hybrid Retrieval
 
-**Version:** 1.0
-**Parent Project:** [IntelliForge: Applied GenAI Playbook](../overview.md)
-**Application Folder:** [`apps/context_quest/`](../../apps/context_quest/)
-**App README:** [apps/context_quest/README.md](../../apps/context_quest/README.md)
+- **Version:** 1.0
+- **Parent Project:** [IntelliForge: Applied GenAI Playbook](../overview.md)
+- **Application Folder:** [`apps/context_quest/`](../../apps/context_quest/)
+- **App README:** [apps/context_quest/README.md](../../apps/context_quest/README.md)
 
 ---
 
@@ -19,12 +19,12 @@ The goal is to illustrate how hybrid retrieval can potentially overcome the limi
 
 The central AI technique demonstrated by ContextQuest is **Hybrid Retrieval**. This involves:
 
-* **Keyword Search (Sparse Retrieval):** Using algorithms like Okapi BM25 that match the exact words or terms in the query against the documents. It excels at finding documents containing specific keywords or phrases.
-* **Semantic Search (Dense Retrieval):** Converting both the query and document chunks into dense vector embeddings (numerical representations capturing meaning). It finds documents that are semantically similar (related in meaning) to the query, even if they don't share the exact keywords.
-* **Result Combination/Ranking:** Implementing a strategy to combine the results from both search methods. This could involve:
-  * **Weighted Combination:** Assigning weights to the relevance scores from each method and calculating a combined score.
-  * **Reciprocal Rank Fusion (RRF):** Combining rankings based on the reciprocal of the rank position in each result list.
-  * Other re-ranking techniques.
+- **Keyword Search (Sparse Retrieval):** Using algorithms like Okapi BM25 that match the exact words or terms in the query against the documents. It excels at finding documents containing specific keywords or phrases.
+- **Semantic Search (Dense Retrieval):** Converting both the query and document chunks into dense vector embeddings (numerical representations capturing meaning). It finds documents that are semantically similar (related in meaning) to the query, even if they don't share the exact keywords.
+- **Result Combination/Ranking:** Implementing a strategy to combine the results from both search methods. This could involve:
+  - **Weighted Combination:** Assigning weights to the relevance scores from each method and calculating a combined score.
+  - **Reciprocal Rank Fusion (RRF):** Combining rankings based on the reciprocal of the rank position in each result list.
+  - Other re-ranking techniques.
 
 By blending these methods, ContextQuest aims to retrieve a set of documents that is both keyword-relevant and semantically related to the user's query.
 
