@@ -6,6 +6,10 @@ A collection of demo applications showcasing applied Generative AI use cases pow
 
 IntelliForge is a comprehensive playbook of practical Generative AI applications, designed to demonstrate the capabilities of Google's Gemini 2.5 Pro model across various domains. This repository contains nine specialized applications, each focusing on a different aspect of AI-powered data interaction and analysis, with a particular emphasis on advanced Retrieval-Augmented Generation (RAG) techniques.
 
+## 📚 Documentation
+
+For detailed architecture and documentation of the individual applications please refer to the [`docs`](docs/) folder
+
 ## 📊 Applications
 
 ### [InsightAgent: Data Analysis](apps/insight_agent/)
