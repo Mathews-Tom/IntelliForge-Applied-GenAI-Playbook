@@ -14,16 +14,18 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
+import streamlit as st  # Added for caching decorators
 
 
 # Document loading functions
+@st.cache_data(show_spinner="Loading documents from CSV...")
 def load_documents_from_csv(
     file_path: Union[str, Path],
     text_column: str = "text",
     id_column: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Load documents from a CSV file.
+    Load documents from a CSV file (cached).
 
     Args:
         file_path: Path to the CSV file
@@ -33,58 +35,96 @@ def load_documents_from_csv(
     Returns:
         List of document dictionaries with 'text' and optional 'id' keys
     """
+    print(f"Cache miss: Loading CSV from {file_path}")  # Log cache misses
     try:
-        df = pd.read_csv(file_path)
+        # Ensure file_path is usable by pandas (e.g., handle Path objects)
+        df = pd.read_csv(str(file_path))
         documents = []
 
-        for _, row in df.iterrows():
-            doc = {"text": row[text_column]}
-            if id_column and id_column in df.columns:
-                doc["id"] = row[id_column]
-            else:
-                doc["id"] = str(len(documents))
+        required_cols = [text_column]
+        if id_column:
+            required_cols.append(id_column)
+        if not all(col in df.columns for col in required_cols):
+            missing = [col for col in required_cols if col not in df.columns]
+            raise ValueError(f"Missing required columns in CSV: {missing}")
 
-            # Add all other columns as metadata
+        for _, row in df.iterrows():
+            # Handle potential missing text data gracefully
+            text_content = row.get(text_column, "")
+            doc = {"text": str(text_content) if pd.notna(text_content) else ""}
+
+            if id_column and id_column in df.columns:
+                doc["id"] = str(row[id_column])  # Ensure ID is string
+            else:
+                doc["id"] = str(len(documents))  # Use index as fallback ID
+
+            # Add all other columns as metadata, handling potential NaN values
             for col in df.columns:
                 if col != text_column and col != id_column:
-                    doc[col] = row[col]
+                    value = row[col]
+                    doc[col] = (
+                        str(value) if pd.notna(value) else None
+                    )  # Convert non-null to string
 
             documents.append(doc)
 
         return documents
+    except FileNotFoundError:
+        st.error(f"Error: CSV file not found at {file_path}")
+        return []
     except Exception as e:
-        print(f"Error loading documents from CSV: {e}")
+        st.error(f"Error loading documents from CSV '{file_path}': {e}")
+        print(f"Error loading documents from CSV: {e}")  # Also print to console log
         return []
 
 
+@st.cache_data(show_spinner="Loading documents from text file...")
 def load_documents_from_text_file(
-    file_path: Union[str, Path], chunk_size: Optional[int] = None
+    file_path: Union[str, Path], chunk_size: Optional[int] = None, overlap: int = 50
 ) -> List[Dict[str, Any]]:
     """
-    Load documents from a text file, optionally chunking the content.
+    Load documents from a text file (cached), optionally chunking the content.
 
     Args:
-        file_path: Path to the text file
-        chunk_size: Number of characters per chunk (if None, the entire file is one document)
+        file_path: Path to the text file.
+        chunk_size: Number of characters per chunk (if None, the entire file is one document).
+        overlap: Number of characters to overlap between chunks (used if chunk_size is set).
 
     Returns:
-        List of document dictionaries with 'text' and 'id' keys
+        List of document dictionaries with 'text', 'id', and 'source' keys.
     """
+    print(f"Cache miss: Loading text file from {file_path}")  # Log cache misses
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        file_path_str = str(file_path)  # Ensure string path for open()
+        with open(file_path_str, "r", encoding="utf-8") as f:
             text = f.read()
 
-        if chunk_size is None:
-            return [{"id": "0", "text": text, "source": str(file_path)}]
+        if not text:
+            st.warning(f"Text file '{file_path_str}' is empty.")
+            return []
 
-        # Chunk the text
-        chunks = chunk_text(text, chunk_size)
-        return [
-            {"id": str(i), "text": chunk, "source": str(file_path)}
-            for i, chunk in enumerate(chunks)
-        ]
+        if chunk_size is None:
+            # Return entire file as one document
+            return [{"id": "0", "text": text, "source": file_path_str}]
+        else:
+            # Chunk the text using the utility function
+            chunks = chunk_text(text, chunk_size, overlap)
+            if not chunks:
+                st.warning(f"Text file '{file_path_str}' resulted in zero chunks.")
+                return []
+            # Create document dictionaries for each chunk
+            return [
+                {"id": str(i), "text": chunk, "source": file_path_str, "chunk_index": i}
+                for i, chunk in enumerate(chunks)
+            ]
+    except FileNotFoundError:
+        st.error(f"Error: Text file not found at {file_path_str}")
+        return []
     except Exception as e:
-        print(f"Error loading documents from text file: {e}")
+        st.error(f"Error loading documents from text file '{file_path_str}': {e}")
+        print(
+            f"Error loading documents from text file: {e}"
+        )  # Also print to console log
         return []
 
 
@@ -227,4 +267,5 @@ def dataframe_to_documents(
 
     return documents
 
+    return documents
     return documents
