@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+import streamlit as st  # Added for caching
 
 # Add the project root to the Python path to import core modules
 project_root = Path(__file__).parent.parent.parent
@@ -18,58 +19,66 @@ sys.path.append(str(project_root))
 from core.llm.gemini_utils import GeminiModelType, generate_content
 
 
-def evaluate_retrieval_relevance(
+@st.cache_data(show_spinner="Evaluating retrieval relevance...")
+async def evaluate_retrieval_relevance(
     query: str, retrieved_docs: List[Tuple[Union[str, Dict[str, Any]], float]]
 ) -> str:
     """
-    Evaluate the relevance of retrieved documents to a query using Gemini.
+    Evaluate the relevance of retrieved documents to a query using Gemini (async, cached).
 
     Args:
-        query: Query string
-        retrieved_docs: List of (document, score) tuples
+        query: Query string.
+        retrieved_docs: List of (document, score) tuples.
 
     Returns:
-        Evaluation report as a string
+        Evaluation report as a string.
     """
+    print(
+        f"Cache miss: Evaluating relevance for query '{query[:50]}...'"
+    )  # Log cache misses
+
+    if not retrieved_docs:
+        return "No documents retrieved to evaluate."
+
     # Extract text from documents if they are dictionaries
     doc_texts = []
     for doc, _ in retrieved_docs:
         if isinstance(doc, dict):
-            doc_texts.append(doc.get("text", ""))
+            # Ensure text is string
+            doc_texts.append(str(doc.get("text", "")))
         else:
-            doc_texts.append(doc)
+            # Ensure text is string
+            doc_texts.append(str(doc) if doc is not None else "")
 
     # Create prompt for Gemini
     docs_text = "\n\n".join(
         [f"Document {i + 1}:\n{doc}" for i, doc in enumerate(doc_texts)]
     )
 
-    prompt = f"""
-    Evaluate the relevance of the following documents to the query.
+    prompt = f"""Evaluate the relevance of the following documents to the query.
 
-    Query: {query}
+Query: {query}
 
-    {docs_text}
+Documents:
+{docs_text}
 
-    For each document, provide a relevance score from 0 to 10, where:
-    - 0-3: Not relevant
-    - 4-6: Somewhat relevant
-    - 7-10: Highly relevant
-
-    Also provide a brief explanation for each score.
-
-    Format your response as a table with columns: Document Number, Relevance Score, Explanation
-    """
+For each document, provide a relevance score from 0 to 10 (0=Not relevant, 10=Highly relevant) and a brief explanation.
+Format your response as a Markdown table with columns: "Document Number", "Relevance Score", "Explanation"."""
 
     try:
-        response = generate_content(GeminiModelType.GEMINI_2_5_PRO, prompt)
+        # Use await for the async generate_content
+        response = await generate_content(
+            GeminiModelType.GEMINI_2_5_PRO, prompt
+        )  # Consider faster/cheaper model?
 
         if response:
             return response
         else:
-            return "Failed to evaluate relevance."
+            st.warning("Failed to get relevance evaluation from LLM.")
+            return "Evaluation failed: No response from LLM."
     except Exception as e:
-        return f"Error evaluating relevance: {e}"
+        st.error(f"Error during relevance evaluation: {e}")
+        return f"Evaluation failed: Error - {e}"
 
 
 def calculate_precision_recall(
@@ -105,158 +114,272 @@ def calculate_precision_recall(
     return {"precision": precision, "recall": recall, "f1": f1}
 
 
-def evaluate_answer_faithfulness(
+@st.cache_data(show_spinner="Evaluating answer faithfulness...")
+async def evaluate_answer_faithfulness(
     answer: str, context: str, query: str
 ) -> Dict[str, Any]:
     """
-    Evaluate the faithfulness of an answer to the provided context.
+    Evaluate the faithfulness of an answer to the provided context (async, cached).
 
     Args:
-        answer: Generated answer
-        context: Context used to generate the answer
-        query: Original query
+        answer: Generated answer.
+        context: Context used to generate the answer.
+        query: Original query.
 
     Returns:
-        Dictionary with faithfulness score and explanation
+        Dictionary with faithfulness score, explanation, and issues.
     """
-    prompt = f"""
-    Evaluate the faithfulness of the following answer to the provided context.
-    
-    Query: {query}
-    
-    Context:
-    {context}
-    
-    Answer:
-    {answer}
-    
-    A faithful answer should:
-    1. Only contain information that is present in the context or is common knowledge
-    2. Not contradict the context
-    3. Not add speculative or unsupported details
-    
-    Rate the faithfulness on a scale of 0 to 10, where:
-    - 0-3: Not faithful (contains significant information not in the context)
-    - 4-6: Somewhat faithful (contains some information not in the context)
-    - 7-10: Highly faithful (contains only information from the context)
-    
-    Return your evaluation as a JSON object with the following fields:
-    - score: The faithfulness score (0-10)
-    - explanation: A brief explanation of your rating
-    - issues: A list of specific issues found (if any)
-    """
+    print(
+        f"Cache miss: Evaluating faithfulness for query '{query[:50]}...'"
+    )  # Log cache misses
 
-    try:
-        response = generate_content(GeminiModelType.GEMINI_2_5_PRO, prompt)
-
-        if response:
-            # Try to parse the response as JSON
-            try:
-                import json
-
-                result = json.loads(response.strip())
-                return result
-            except:
-                # If parsing fails, return a simple result
-                return {
-                    "score": 5,
-                    "explanation": "Failed to parse evaluation result.",
-                    "issues": ["Error parsing Gemini response as JSON"],
-                }
-        else:
-            return {
-                "score": 5,
-                "explanation": "Failed to evaluate faithfulness.",
-                "issues": ["No response from Gemini"],
-            }
-    except Exception as e:
+    # Basic input validation
+    if not answer or not context:
         return {
-            "score": 5,
-            "explanation": f"Error evaluating faithfulness: {e}",
-            "issues": [str(e)],
+            "score": 0,
+            "explanation": "Input answer or context is empty.",
+            "issues": ["Missing input"],
         }
 
+    prompt = f"""Evaluate the faithfulness of the following answer ONLY based on the provided context.
 
-def evaluate_answer_quality(answer: str, query: str) -> Dict[str, Any]:
-    """
-    Evaluate the overall quality of an answer.
+Query: {query}
 
-    Args:
-        answer: Generated answer
-        query: Original query
+Context:
+---
+{context}
+---
 
-    Returns:
-        Dictionary with quality metrics
-    """
-    prompt = f"""
-    Evaluate the quality of the following answer to the query.
-    
-    Query: {query}
-    
-    Answer:
-    {answer}
-    
-    Evaluate the answer on the following dimensions:
-    1. Relevance: How well the answer addresses the query (0-10)
-    2. Completeness: How thoroughly the answer covers the topic (0-10)
-    3. Clarity: How clear and understandable the answer is (0-10)
-    4. Conciseness: How concise and to-the-point the answer is (0-10)
-    
-    Return your evaluation as a JSON object with the following fields:
-    - relevance: Score for relevance (0-10)
-    - completeness: Score for completeness (0-10)
-    - clarity: Score for clarity (0-10)
-    - conciseness: Score for conciseness (0-10)
-    - overall: Average of the above scores
-    - explanation: A brief explanation of your rating
-    """
+Answer:
+---
+{answer}
+---
+
+A faithful answer must ONLY contain information directly supported by the context. It should not contradict the context or add external information (unless it's extremely common knowledge implicitly needed to understand the context).
+
+Rate the faithfulness on a scale of 0 to 10 (0=Not faithful, 10=Highly faithful).
+Provide a brief explanation for your rating.
+List specific phrases or claims in the answer that are NOT supported by the context.
+
+Return your evaluation ONLY as a JSON object with keys "score" (int), "explanation" (str), and "issues" (list of strings). Example:
+{{
+  "score": 8,
+  "explanation": "The answer is mostly faithful but includes one minor detail not explicitly mentioned.",
+  "issues": ["Claim 'XYZ' is not supported by the context."]
+}}"""
+
+    # Default result in case of failure
+    default_fail_result = {
+        "score": -1,  # Use -1 to indicate failure
+        "explanation": "Evaluation failed.",
+        "issues": ["Evaluation could not be completed."],
+    }
 
     try:
-        response = generate_content(GeminiModelType.GEMINI_2_5_PRO, prompt)
+        # Use await for the async generate_content
+        response = await generate_content(
+            GeminiModelType.GEMINI_2_5_PRO, prompt
+        )  # Consider faster/cheaper model?
 
         if response:
             # Try to parse the response as JSON
             try:
                 import json
 
-                result = json.loads(response.strip())
-
-                # Calculate overall score if not provided
-                if "overall" not in result:
-                    scores = [
-                        result.get("relevance", 5),
-                        result.get("completeness", 5),
-                        result.get("clarity", 5),
-                        result.get("conciseness", 5),
+                # Clean potential markdown code fences
+                cleaned_response = (
+                    response.strip().strip("```json").strip("```").strip()
+                )
+                result = json.loads(cleaned_response)
+                # Basic validation of the parsed structure
+                if (
+                    isinstance(result, dict)
+                    and "score" in result
+                    and "explanation" in result
+                    and "issues" in result
+                ):
+                    # Ensure score is an int
+                    result["score"] = int(result.get("score", -1))
+                    return result
+                else:
+                    print(
+                        f"Warning: Faithfulness evaluation response JSON structure invalid: {response}"
+                    )
+                    default_fail_result["explanation"] = (
+                        "Failed to parse evaluation result: Invalid JSON structure."
+                    )
+                    default_fail_result["issues"] = [
+                        f"Invalid JSON structure in response: {response}"
                     ]
-                    result["overall"] = sum(scores) / len(scores)
+                    return default_fail_result
 
-                return result
-            except:
-                # If parsing fails, return a simple result
-                return {
-                    "relevance": 5,
-                    "completeness": 5,
-                    "clarity": 5,
-                    "conciseness": 5,
-                    "overall": 5,
-                    "explanation": "Failed to parse evaluation result.",
-                }
+            except json.JSONDecodeError as json_err:
+                print(
+                    f"Warning: Faithfulness evaluation response JSON parsing failed: {json_err}. Response: {response}"
+                )
+                default_fail_result["explanation"] = (
+                    f"Failed to parse evaluation result: {json_err}"
+                )
+                default_fail_result["issues"] = [
+                    f"JSON parsing error in response: {response}"
+                ]
+                return default_fail_result
+            except Exception as parse_err:
+                print(
+                    f"Warning: Faithfulness evaluation response parsing failed unexpectedly: {parse_err}. Response: {response}"
+                )
+                default_fail_result["explanation"] = (
+                    f"Failed to parse evaluation result: {parse_err}"
+                )
+                default_fail_result["issues"] = [
+                    f"Unexpected parsing error in response: {response}"
+                ]
+                return default_fail_result
         else:
-            return {
-                "relevance": 5,
-                "completeness": 5,
-                "clarity": 5,
-                "conciseness": 5,
-                "overall": 5,
-                "explanation": "Failed to evaluate answer quality.",
-            }
+            st.warning("Failed to get faithfulness evaluation from LLM.")
+            default_fail_result["explanation"] = (
+                "Failed to evaluate faithfulness: No response from LLM."
+            )
+            default_fail_result["issues"] = ["No response from LLM"]
+            return default_fail_result
     except Exception as e:
+        st.error(f"Error during faithfulness evaluation: {e}")
+        default_fail_result["explanation"] = f"Error evaluating faithfulness: {e}"
+        default_fail_result["issues"] = [str(e)]
+        return default_fail_result
+
+
+@st.cache_data(show_spinner="Evaluating answer quality...")
+async def evaluate_answer_quality(answer: str, query: str) -> Dict[str, Any]:
+    """
+    Evaluate the overall quality of an answer (async, cached).
+
+    Args:
+        answer: Generated answer.
+        query: Original query.
+
+    Returns:
+        Dictionary with quality metrics (relevance, completeness, clarity, conciseness, overall, explanation).
+    """
+    print(
+        f"Cache miss: Evaluating quality for query '{query[:50]}...'"
+    )  # Log cache misses
+
+    if not answer:
         return {
-            "relevance": 5,
-            "completeness": 5,
-            "clarity": 5,
-            "conciseness": 5,
-            "overall": 5,
-            "explanation": f"Error evaluating answer quality: {e}",
+            "relevance": 0,
+            "completeness": 0,
+            "clarity": 0,
+            "conciseness": 0,
+            "overall": 0,
+            "explanation": "Input answer is empty.",
         }
+
+    prompt = f"""Evaluate the quality of the following answer provided for the query.
+
+Query: {query}
+
+Answer:
+---
+{answer}
+---
+
+Evaluate the answer on the following dimensions, each on a scale of 0 to 10:
+1. Relevance: How well the answer directly addresses the specific query asked.
+2. Completeness: How thoroughly the answer covers the main points needed to address the query.
+3. Clarity: How clear, understandable, and well-structured the answer is.
+4. Conciseness: How efficiently the answer conveys information without unnecessary verbosity.
+
+Return your evaluation ONLY as a JSON object with keys "relevance" (int), "completeness" (int), "clarity" (int), "conciseness" (int), and "explanation" (str, a brief overall justification). Example:
+{{
+  "relevance": 9,
+  "completeness": 7,
+  "clarity": 8,
+  "conciseness": 6,
+  "explanation": "The answer is relevant and clear, but could be more complete and less verbose."
+}}"""
+
+    # Default result in case of failure
+    default_fail_result = {
+        "relevance": -1,
+        "completeness": -1,
+        "clarity": -1,
+        "conciseness": -1,
+        "overall": -1,
+        "explanation": "Evaluation failed.",
+    }
+
+    try:
+        # Use await for the async generate_content
+        response = await generate_content(
+            GeminiModelType.GEMINI_2_5_PRO, prompt
+        )  # Consider faster/cheaper model?
+
+        if response:
+            # Try to parse the response as JSON
+            try:
+                import json
+
+                # Clean potential markdown code fences
+                cleaned_response = (
+                    response.strip().strip("```json").strip("```").strip()
+                )
+                result = json.loads(cleaned_response)
+
+                # Basic validation and calculation of overall score
+                required_keys = [
+                    "relevance",
+                    "completeness",
+                    "clarity",
+                    "conciseness",
+                    "explanation",
+                ]
+                if isinstance(result, dict) and all(
+                    key in result for key in required_keys
+                ):
+                    scores = []
+                    for key in ["relevance", "completeness", "clarity", "conciseness"]:
+                        # Ensure scores are ints
+                        score_val = int(result.get(key, -1))
+                        result[key] = score_val
+                        if score_val != -1:
+                            scores.append(score_val)
+
+                    result["overall"] = sum(scores) / len(scores) if scores else -1
+                    return result
+                else:
+                    print(
+                        f"Warning: Quality evaluation response JSON structure invalid: {response}"
+                    )
+                    default_fail_result["explanation"] = (
+                        "Failed to parse evaluation result: Invalid JSON structure."
+                    )
+                    return default_fail_result
+
+            except json.JSONDecodeError as json_err:
+                print(
+                    f"Warning: Quality evaluation response JSON parsing failed: {json_err}. Response: {response}"
+                )
+                default_fail_result["explanation"] = (
+                    f"Failed to parse evaluation result: {json_err}"
+                )
+                return default_fail_result
+            except Exception as parse_err:
+                print(
+                    f"Warning: Quality evaluation response parsing failed unexpectedly: {parse_err}. Response: {response}"
+                )
+                default_fail_result["explanation"] = (
+                    f"Failed to parse evaluation result: {parse_err}"
+                )
+                return default_fail_result
+        else:
+            st.warning("Failed to get quality evaluation from LLM.")
+            default_fail_result["explanation"] = (
+                "Failed to evaluate answer quality: No response from LLM."
+            )
+            return default_fail_result
+    except Exception as e:
+        st.error(f"Error during quality evaluation: {e}")
+        default_fail_result["explanation"] = f"Error evaluating answer quality: {e}"
+        return default_fail_result
+        return default_fail_result
